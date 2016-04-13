@@ -60,7 +60,7 @@ else {
 		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
 		$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND ((gibbonPersonID=:gibbonPersonID AND type='Personal') OR type='School' OR type='gibbonedu.com') AND active='Y'" ;
 		$error = "<div class='error'>\n{message}\n</div>\n" ; 
-		$result = $pdo->executeQuery();
+		$result = $pdo->executeQuery($data, $sql, $error);
 		
 		if ($result->rowCount()!=1) {
 			print "<div class='error'>" ;
