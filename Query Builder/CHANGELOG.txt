@@ -1,6 +1,6 @@
 CHANGELOG
 =========
-v1.2.09-Craig
+v1.3.00
 -------
 Changed export to PHPExcel version
 
