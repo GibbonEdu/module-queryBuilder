@@ -48,17 +48,11 @@ else {
 		print "</div>" ; 
 	}
 	else {
-		try {
-			$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
-			$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND (gibbonPersonID=:gibbonPersonID OR NOT type='Personal') AND active='Y'" ;
-			$result=$connection2->prepare($sql);
-			$result->execute($data);
-		}
-		catch(PDOException $e) { 
-			print "<div class='error'>"; 
-				print _("Your request failed due to a database error.") ;
-			print "</div>" ; 
-		}
+		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
+		$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND (gibbonPersonID=:gibbonPersonID OR NOT type='Personal') AND active='Y'" ;
+		$error = "<div class='error'>\n"._("Your request failed due to a database error.")."\n</div>" ; 
+
+		$result = $pdo->executeQuery($data, $sql, $error);
 
 		if ($result->rowCount()<1) {
 			print "<div class='error'>"; 
@@ -66,16 +60,10 @@ else {
 			print "</div>" ; 
 		}
 		else {
-			try {
-				$data=array(); 
-				$result=$connection2->prepare($query);
-				$result->execute($data);
-			}
-			catch(PDOException $e) { 
-				print "<div class='error'>"; 
-					print _("Your request failed due to a database error.") ;
-				print "</div>" ; 
-			}
+			$data = array();
+			$error =  "<div class='error'\n>" . _("Your request failed due to a database error.") . "\n</div>" ; 
+
+			$result = $pdo->executeQuery($data, $query, $error);
 
 			if ($result->rowCount()<1) {
 				print "<div class='warning'>Your query has returned 0 rows.</div>" ; 
@@ -84,25 +72,25 @@ else {
 				
 				$excel->setActiveSheetIndex(0);
 				
-						for ($i=0; $i<$result->columnCount(); $i++) {
-							$col=$result->getColumnMeta($i);
-							if ($col["name"]!="password" AND $col["name"]!="passwordStrong" AND $col["name"]!="passwordStrongSalt" AND $col["table"]!="gibbonStaffContract" AND $col["table"]!="gibbonStaffApplicationForm" AND $col["table"]!="gibbonStaffApplicationFormFile") {
-								$excel->getActiveSheet()->setCellValueByColumnAndRow($i, 1, $col["name"]);
-							}
-						}
-					$r = 2;
-					while ($row=$result->fetch()) {
-						if (intval($row['gibbonPersonID']) > 0 )
-						{
-							for ($i=0; $i<$result->columnCount(); $i++) {
-								$col=$result->getColumnMeta($i);		
-								if ($col["name"]!="password" AND $col["name"]!="passwordStrong" AND $col["name"]!="passwordStrongSalt" AND $col["table"]!="gibbonStaffContract" AND $col["table"]!="gibbonStaffApplicationForm" AND $col["table"]!="gibbonStaffApplicationFormFile") {
-									$excel->getActiveSheet()->setCellValueByColumnAndRow($i, $r, $row[$col["name"]]);
-								}
-							}
-							$r++;
-						}
+				for ($i=0; $i<$result->columnCount(); $i++) {
+					$col=$result->getColumnMeta($i);
+					if ($col["name"]!="password" AND $col["name"]!="passwordStrong" AND $col["name"]!="passwordStrongSalt" AND $col["table"]!="gibbonStaffContract" AND $col["table"]!="gibbonStaffApplicationForm" AND $col["table"]!="gibbonStaffApplicationFormFile") {
+						$excel->getActiveSheet()->setCellValueByColumnAndRow($i, 1, $col["name"]);
 					}
+				}
+				$r = 2;
+				while ($row=$result->fetch()) {
+					if (intval($row['gibbonPersonID']) > 0 )
+					{
+						for ($i=0; $i<$result->columnCount(); $i++) {
+							$col=$result->getColumnMeta($i);		
+							if ($col["name"]!="password" AND $col["name"]!="passwordStrong" AND $col["name"]!="passwordStrongSalt" AND $col["table"]!="gibbonStaffContract" AND $col["table"]!="gibbonStaffApplicationForm" AND $col["table"]!="gibbonStaffApplicationFormFile") {
+								$excel->getActiveSheet()->setCellValueByColumnAndRow($i, $r, $row[$col["name"]]);
+							}
+						}
+						$r++;
+					}
+				}
 			}
 		}
 	}

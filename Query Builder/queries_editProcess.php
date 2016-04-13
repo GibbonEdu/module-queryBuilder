@@ -48,13 +48,11 @@ else {
 		header("Location: {$URL}");
 	}
 	else {
-		try {
-			$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
-			$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND NOT type='gibbonedu.com' AND gibbonPersonID=:gibbonPersonID" ;
-			$result=$connection2->prepare($sql);
-			$result->execute($data);
-		}
-		catch(PDOException $e) { 
+		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
+		$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND NOT type='gibbonedu.com' AND gibbonPersonID=:gibbonPersonID" ;
+		$result = $pdo->executeQuery($data, $sql);
+		if (! $pdo->getQuerySuccess())
+		{ 
 			//Fail2
 			$URL=$URL . "&deleteReturn=fail2" ;
 			header("Location: {$URL}");
@@ -82,13 +80,11 @@ else {
 			}
 			else {
 				//Write to database
-				try {
-					$data=array("name"=>$name, "category"=>$category, "active"=>$active, "description"=>$description, "query"=>$query, "queryBuilderQueryID"=>$queryBuilderQueryID); 
-					$sql="UPDATE queryBuilderQuery SET name=:name, category=:category, active=:active, description=:description, query=:query WHERE queryBuilderQueryID=:queryBuilderQueryID" ;
-					$result=$connection2->prepare($sql);
-					$result->execute($data);
-				}
-				catch(PDOException $e) { 
+				$data=array("name"=>$name, "category"=>$category, "active"=>$active, "description"=>$description, "query"=>$query, "queryBuilderQueryID"=>$queryBuilderQueryID); 
+				$sql="UPDATE queryBuilderQuery SET name=:name, category=:category, active=:active, description=:description, query=:query WHERE queryBuilderQueryID=:queryBuilderQueryID" ;
+				$result = $pdo->executeQuery($data, $sql);
+				if (! $pdo->getQuerySuccess())
+				{ 
 					//Fail 2
 					$URL=$URL . "&updateReturn=fail2" ;
 					header("Location: {$URL}");

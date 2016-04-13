@@ -49,14 +49,12 @@ else {
 		header("Location: {$URL}");
 	}
 	else {
-		try {
-			$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
-			$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND NOT type='gibbonedu.com' AND gibbonPersonID=:gibbonPersonID" ;
-			$result=$connection2->prepare($sql);
-			$result->execute($data);
-		}
-		catch(PDOException $e) { 
-			//Fail2
+		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
+		$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND NOT type='gibbonedu.com' AND gibbonPersonID=:gibbonPersonID" ;
+		$pdo->executeQuery($data, $sql);
+		if (! $pdo->getQuerySuccess())
+		{
+				//Fail2
 			$URL=$URL . "&deleteReturn=fail2" ;
 			header("Location: {$URL}");
 			break ;
@@ -69,13 +67,11 @@ else {
 		}
 		else {
 			//Write to database
-			try {
-				$data=array("queryBuilderQueryID"=>$queryBuilderQueryID); 
-				$sql="DELETE FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID" ;
-				$result=$connection2->prepare($sql);
-				$result->execute($data);
-			}
-			catch(PDOException $e) { 
+			$data=array("queryBuilderQueryID"=>$queryBuilderQueryID); 
+			$sql="DELETE FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID" ;
+			$pdo->executeQuery($data, $sql);
+			if (! $pdo->getQuerySuccess())
+			{
 				//Fail2
 				$URL=$URL . "&deleteReturn=fail2" ;
 				header("Location: {$URL}");

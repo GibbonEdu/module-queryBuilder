@@ -56,15 +56,13 @@ else {
 	}
 	else {
 		//Write to database
-		try {
-			$data=array("type"=>$type, "name"=>$name, "category"=>$category, "active"=>$active, "description"=>$description, "query"=>$query, "gibbonPersonID"=>$gibbonPersonID); 
-			$sql="INSERT INTO queryBuilderQuery SET type=:type, name=:name, category=:category, active=:active, description=:description, query=:query, gibbonPersonID=:gibbonPersonID" ;
-			$result=$connection2->prepare($sql);
-			$result->execute($data);
-		}
-		catch(PDOException $e) { 
+		$data=array("type"=>$type, "name"=>$name, "category"=>$category, "active"=>$active, "description"=>$description, "query"=>$query, "gibbonPersonID"=>$gibbonPersonID); 
+		$sql="INSERT INTO queryBuilderQuery SET type=:type, name=:name, category=:category, active=:active, description=:description, query=:query, gibbonPersonID=:gibbonPersonID" ;
+		$pdo->executeQuery($data, $sql);
+		if (! $pdo->getQuerySuccess())
+		{ 
 			//Fail 2
-			$URL=$URL . "&addReturn=fail2" ;
+			$URL = $URL . "&addReturn=fail2" ;
 			header("Location: {$URL}");
 			break ;
 		}

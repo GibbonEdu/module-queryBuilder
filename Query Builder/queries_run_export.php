@@ -45,13 +45,11 @@ else {
 		header("Location: {$URL}");
 	}
 	else {
-		try {
-			$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
-			$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND (gibbonPersonID=:gibbonPersonID OR NOT type='Personal') AND active='Y'" ;
-			$result=$connection2->prepare($sql);
-			$result->execute($data);
-		}
-		catch(PDOException $e) { 
+		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
+		$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND (gibbonPersonID=:gibbonPersonID OR NOT type='Personal') AND active='Y'" ;
+		$result = $pdo->executeQuery($data, $sql);
+		if (! $pdo->getQuerySuccess())
+		{
 			//Fail 0
 			$URL=$URL . "?exportReturn=fail0" ;
 			header("Location: {$URL}");

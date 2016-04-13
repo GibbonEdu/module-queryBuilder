@@ -116,20 +116,15 @@ else {
 		print _("Queries") ;
 		print "</h3>" ;
 	
-		try {
-			$data=array("gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
-			$sql="SELECT * FROM queryBuilderQuery WHERE ((type='Personal' AND gibbonPersonID=:gibbonPersonID) OR type='School' OR type='gibbonedu.com') ORDER BY category, gibbonPersonID, name" ; 
-			if ($search!="") {
-				$data["search"]="%$search%"; 
-				$data["search2"]="%$search%"; 
-				$sql="SELECT * FROM queryBuilderQuery WHERE ((type='Personal' AND gibbonPersonID=:gibbonPersonID) OR type='School' OR type='gibbonedu.com') AND (name LIKE :search OR category LIKE :search2) ORDER BY category, gibbonPersonID, name" ; 
-			}
-			$result=$connection2->prepare($sql);
-			$result->execute($data);
+		$data=array("gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
+		$sql="SELECT * FROM queryBuilderQuery WHERE ((type='Personal' AND gibbonPersonID=:gibbonPersonID) OR type='School' OR type='gibbonedu.com') ORDER BY category, gibbonPersonID, name" ; 
+		if ($search!="") {
+			$data["search"]="%$search%"; 
+			$data["search2"]="%$search%"; 
+			$sql="SELECT * FROM queryBuilderQuery WHERE ((type='Personal' AND gibbonPersonID=:gibbonPersonID) OR type='School' OR type='gibbonedu.com') AND (name LIKE :search OR category LIKE :search2) ORDER BY category, gibbonPersonID, name" ; 
 		}
-		catch(PDOException $e) { 
-			print "<div class='error'>" . $e->getMessage() . "</div>" ; 
-		}
+		$error = "<div class='error'>\n{message}\n</div>\n";
+		$result = $pdo->executeQuery($data, $sql, $error);
 
 		print "<div class='linkTop'>" ;
 		print "<a href='" . $_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/" . $_SESSION[$guid]["module"] . "/queries_add.php&sidebar=false&search=$search'><img title='" . _('Add New Record') . "' src='./themes/" . $_SESSION[$guid]["gibbonThemeName"] . "/img/page_new.png'/></a>" ;

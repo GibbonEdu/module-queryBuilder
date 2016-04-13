@@ -32,15 +32,11 @@ else {
 	print "</p>" ;
 	
 	//Get class variable
-	try {
-		$data=array(); 
-		$sql="SHOW TABLES" ;
-		$result=$connection2->prepare($sql);
-		$result->execute($data);
-	}
-	catch(PDOException $e) { 
-		print "<div class='error'>" . $e->getMessage() . "</div>" ; 
-	}
+	$data=array(); 
+	$sql="SHOW TABLES" ;
+	$error = "<div class='error'>\n{message}\n</div>\n" ;
+	$result = $pdo->executeQuery($data, $sql, $error);
+	
 	if ($result->rowCount()<1) {
 		print "<div class='error'>" ;
 			print _("There are no tables to show.") ;
@@ -52,15 +48,10 @@ else {
 				print $row["Tables_in_" . $databaseName] ;
 			print "</h2>" ;
 			
-			try {
-				$dataTable=array(); 
-				$sqlTable='SHOW COLUMNS FROM ' . $row["Tables_in_" . $databaseName];
-				$resultTable=$connection2->prepare($sqlTable);
-				$resultTable->execute($dataTable);
-			}
-			catch(PDOException $e) { 
-				print "<div class='error'>" . $e->getMessage() . "</div>" ; 
-			}
+			$dataTable=array(); 
+			$sqlTable='SHOW COLUMNS FROM ' . $row["Tables_in_" . $databaseName];
+			$error = "<div class='error'>\n{message}\n</div>\n" ;
+			$resultTable = $pdo->executeQuery($dataTable, $sqlTable, $error);
 			
 			if ($resultTable->rowCount()<1) {
 				print "<div class='error'>" ;

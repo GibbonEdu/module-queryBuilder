@@ -77,15 +77,11 @@ else {
 		print "</div>" ;
 	}
 	else {
-		try {
-			$data=array("queryBuilderQueryID"=>$queryBuilderQueryID); 
-			$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID" ;
-			$result=$connection2->prepare($sql);
-			$result->execute($data);
-		}
-		catch(PDOException $e) { 
-			print "<div class='error'>" . $e->getMessage() . "</div>" ; 
-		}
+		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID); 
+		$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID" ;
+		$error = "<div class='error'>\n" . $e->getMessage() . "\n</div>\n" ; 
+
+		$pdo->executeQuery($data, $sql);
 		
 		if ($result->rowCount()!=1) {
 			print "<div class='error'>" ;

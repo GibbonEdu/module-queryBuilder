@@ -77,15 +77,11 @@ else {
 		print "</div>" ;
 	}
 	else {
-		try {
-			$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
-			$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND NOT type='gibbonedu.com' AND gibbonPersonID=:gibbonPersonID" ;
-			$result=$connection2->prepare($sql);
-			$result->execute($data);
-		}
-		catch(PDOException $e) { 
-			print "<div class='error'>" . $e->getMessage() . "</div>" ; 
-		}
+		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
+		$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND NOT type='gibbonedu.com' AND gibbonPersonID=:gibbonPersonID" ;
+		$error ="<div class='error'>\n" . $e->getMessage() . "\n</div>\n" ; 
+		$result = $pdo->executeQuery($data, $sql);
+		$result->execute($data);
 		
 		if ($result->rowCount()!=1) {
 			print "<div class='error'>" ;
@@ -134,13 +130,9 @@ else {
 							$(function() {
 								var availableTags=[
 									<?php
-									try {
-										$dataAuto=array("gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
-										$sqlAuto="SELECT DISTINCT category FROM queryBuilderQuery WHERE type='School' OR type='gibbonedu.com' OR (type='Personal' AND gibbonPersonID=:gibbonPersonID) ORDER BY category" ;
-										$resultAuto=$connection2->prepare($sqlAuto);
-										$resultAuto->execute($dataAuto);
-									}
-									catch(PDOException $e) { }
+									$dataAuto=array("gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
+									$sqlAuto="SELECT DISTINCT category FROM queryBuilderQuery WHERE type='School' OR type='gibbonedu.com' OR (type='Personal' AND gibbonPersonID=:gibbonPersonID) ORDER BY category" ;
+									$resultAuto = $pdo->executeQuery($dataAuto, $sqlAuto);
 									while ($rowAuto=$resultAuto->fetch()) {
 										print "\"" . $rowAuto["category"] . "\", " ;
 									}

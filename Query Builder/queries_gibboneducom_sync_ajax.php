@@ -40,23 +40,15 @@ if (count($queries)<1) { //We have a problem, report it.
 }
 else { //Success, let's write them to the database.
 	//But first let's remove all of the gibbonedu.com old queries
-	try {
-		$data=array(); 
-		$sql="DELETE FROM queryBuilderQuery WHERE type='gibbonedu.com'" ;
-		$result=$connection2->prepare($sql);
-		$result->execute($data); 
-	}
-	catch(PDOException $e) { }
+	$data=array(); 
+	$sql="DELETE FROM queryBuilderQuery WHERE type='gibbonedu.com'" ;
+	$result = $pdo->executeQuery($data, $sql);
 	
 	//Now let's get them in
 	for ($i=0; $i<count($queries); $i++) {
-		try {
-			$data=array("queryID"=>$queries[$i]["queryID"], "name"=>$queries[$i]["name"], "category"=>$queries[$i]["category"], "description"=>$queries[$i]["description"], "query"=>$queries[$i]["query"]); 
-			$sql="INSERT INTO queryBuilderQuery SET type='gibbonedu.com', queryID=:queryID, name=:name, category=:category, description=:description, query=:query" ;
-			$result=$connection2->prepare($sql);
-			$result->execute($data);
-		}
-		catch(PDOException $e) {  print "here" . $e->getMessage() ; }
+		$data=array("queryID"=>$queries[$i]["queryID"], "name"=>$queries[$i]["name"], "category"=>$queries[$i]["category"], "description"=>$queries[$i]["description"], "query"=>$queries[$i]["query"]); 
+		$sql="INSERT INTO queryBuilderQuery SET type='gibbonedu.com', queryID=:queryID, name=:name, category=:category, description=:description, query=:query" ;
+		$result = $pdo->executeQuery($data, $sql, 'here {message}');
 	}
 }
 

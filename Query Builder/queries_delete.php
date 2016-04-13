@@ -70,16 +70,11 @@ else {
 		print "</div>" ;
 	}
 	else {
-		try {
-			$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
-			$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND NOT type='gibbonedu.com' AND gibbonPersonID=:gibbonPersonID" ;
-			$result=$connection2->prepare($sql);
-			$result->execute($data);
-		}
-		catch(PDOException $e) { 
-			print "<div class='error'>" . $e->getMessage() . "</div>" ; 
-		}
-		
+		$error = "<div class='error'>\n" . $e->getMessage() . "\n</div>\n" ; 
+		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
+		$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND NOT type='gibbonedu.com' AND gibbonPersonID=:gibbonPersonID" ;
+		$pdo->executeQuery($data, $sql, $error);
+
 		if ($result->rowCount()!=1) {
 			print "<div class='error'>" ;
 				print _("The specified record cannot be found.") ;

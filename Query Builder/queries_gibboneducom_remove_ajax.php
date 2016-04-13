@@ -34,12 +34,8 @@ $gibboneduComOrganisationKey=$_GET["gibboneduComOrganisationKey"] ;
 $service=$_GET["service"] ;
 
 //Remove all gibbonedu.com queries
-try {
-	$data=array(); 
-	$sql="DELETE FROM queryBuilderQuery WHERE type='gibbonedu.com'" ;
-	$result=$connection2->prepare($sql);
-	$result->execute($data); 
-}
-catch(PDOException $e) { }
+$data=array(); 
+$sql="DELETE FROM queryBuilderQuery WHERE type='gibbonedu.com'" ;
+$result = $pdo->executeQuery($data, $sql);
 
 ?>

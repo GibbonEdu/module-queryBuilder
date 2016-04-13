@@ -57,15 +57,10 @@ else {
 		print "</div>" ;
 	}
 	else {
-		try {
-			$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
-			$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND ((gibbonPersonID=:gibbonPersonID AND type='Personal') OR type='School' OR type='gibbonedu.com') AND active='Y'" ;
-			$result=$connection2->prepare($sql);
-			$result->execute($data);
-		}
-		catch(PDOException $e) { 
-			print "<div class='error'>" . $e->getMessage() . "</div>" ; 
-		}
+		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
+		$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND ((gibbonPersonID=:gibbonPersonID AND type='Personal') OR type='School' OR type='gibbonedu.com') AND active='Y'" ;
+		$error = "<div class='error'>\n{message}\n</div>\n" ; 
+		$result = $pdo->executeQuery();
 		
 		if ($result->rowCount()!=1) {
 			print "<div class='error'>" ;
@@ -183,26 +178,16 @@ else {
 				else {
 					//Save the query
 					if ($save=="Y") {
-						try {
-							$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "query"=>$query); 
-							$sql="UPDATE queryBuilderQuery SET query=:query WHERE queryBuilderQueryID=:queryBuilderQueryID" ;
-							$result=$connection2->prepare($sql);
-							$result->execute($data);
-						}
-						catch(PDOException $e) { 
-							print "<div class='error'>" . $e->getMessage() . "</div>" ; 
-						}
+						$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "query"=>$query); 
+						$sql="UPDATE queryBuilderQuery SET query=:query WHERE queryBuilderQueryID=:queryBuilderQueryID" ;
+						$error = "<div class='error'>\n{message}\n</div>\n" ; 
+						$result = $pdo->executeQuery($data, $sql, $error);
 					}
 					
 					//Run the query
-					try {
-						$data=array(); 
-						$result=$connection2->prepare($query);
-						$result->execute($data);
-					}
-					catch(PDOException $e) { 
-						print "<div class='error'>" . $e->getMessage() . "</div>" ; 
-					}
+					$data=array(); 
+					$error = "<div class='error'>\n{message}\n</div>\n" ; 
+					$result = $pdo->executeQuery($data, $query, $error);
 		
 					if ($result->rowCount()<1) {
 						print "<div class='warning'>Your query has returned 0 rows.</div>" ; 
