@@ -17,18 +17,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-include "../../config.php" ;
+$config = new Gibbon_config();
+$guid = $config->get('guid');
 
 //New PDO DB connection
-try {
-  	$connection2=new PDO("mysql:host=$databaseServer;dbname=$databaseName;charset=utf8", $databaseUsername, $databasePassword);
-	$connection2->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$connection2->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-}
-catch(PDOException $e) {
-  echo $e->getMessage();
-}
-
+$pdo = new Gibbon\sqlConnection();
+$connection2 = $pdo->getConnection();
 @session_start() ;
 
 //Set timezone from session variable
@@ -46,6 +40,8 @@ if (isActionAccessible($guid, $connection2, "/modules/Query Builder/queries_run.
 
 }
 else {
+	$excel = new Gibbon\Excel("queryBuilderExport.xlsx");
+
 	if ($queryBuilderQueryID=="" OR $query=="") {
 		print "<div class='error'>"; 
 			print _("You have not specified one or more required parameters.") ;
@@ -85,32 +81,31 @@ else {
 				print "<div class='warning'>Your query has returned 0 rows.</div>" ; 
 			}
 			else {
-				print "<table class='smallIntBorder' cellspacing='0' style='width: 100%'>" ;	
-					print "<tr>" ;
+				
+				$excel->setActiveSheetIndex(0);
+				
 						for ($i=0; $i<$result->columnCount(); $i++) {
 							$col=$result->getColumnMeta($i);
 							if ($col["name"]!="password" AND $col["name"]!="passwordStrong" AND $col["name"]!="passwordStrongSalt" AND $col["table"]!="gibbonStaffContract" AND $col["table"]!="gibbonStaffApplicationForm" AND $col["table"]!="gibbonStaffApplicationFormFile") {
-								print "<th style='min-width: 72px'>" ;
-									print $col["name"] ;
-								print "</th>" ;
+								$excel->getActiveSheet()->setCellValueByColumnAndRow($i, 1, $col["name"]);
 							}
 						}
-					print "</tr>" ;
+					$r = 2;
 					while ($row=$result->fetch()) {
-						print "<tr>" ;
+						if (intval($row['gibbonPersonID']) > 0 )
+						{
 							for ($i=0; $i<$result->columnCount(); $i++) {
 								$col=$result->getColumnMeta($i);		
 								if ($col["name"]!="password" AND $col["name"]!="passwordStrong" AND $col["name"]!="passwordStrongSalt" AND $col["table"]!="gibbonStaffContract" AND $col["table"]!="gibbonStaffApplicationForm" AND $col["table"]!="gibbonStaffApplicationFormFile") {
-									print "<td>" ;
-										print $row[$col["name"]] ;
-									print "</td>" ;
+									$excel->getActiveSheet()->setCellValueByColumnAndRow($i, $r, $row[$col["name"]]);
 								}
 							}
-						print "</tr>" ;
+							$r++;
+						}
 					}
-				print "</table>" ;
 			}
 		}
 	}
+	$excel->exportWorksheet();
 }
 ?>

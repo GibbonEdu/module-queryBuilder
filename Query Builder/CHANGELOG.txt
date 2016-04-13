@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+v1.2.09-Craig
+-------
+Changed export to PHPExcel version
+
 v1.2.09
 -------
 Added protection against exporting contract data from staff section (coming in Core v12)
