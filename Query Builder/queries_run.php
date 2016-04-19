@@ -17,10 +17,10 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-@session_start() ;
+
 
 //Module includes
-include "./modules/" . $_SESSION[$guid]["module"] . "/moduleFunctions.php" ;
+include "./modules/" . $session->get("module") . "/moduleFunctions.php" ;
 
 if (isActionAccessible($guid, $connection2, "/modules/Query Builder/queries_run.php")==FALSE) {
 	//Acess denied
@@ -31,7 +31,7 @@ if (isActionAccessible($guid, $connection2, "/modules/Query Builder/queries_run.
 else {
 	//Proceed!
 	print "<div class='trail'>" ;
-	print "<div class='trailHead'><a href='" . $_SESSION[$guid]["absoluteURL"] . "'>" . _("Home") . "</a> > <a href='" . $_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/" . getModuleEntry($_GET["q"], $connection2, $guid) . "'>" . getModuleName($_GET["q"]) . "</a> > <a href='" . $_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/queries.php'>" . _('Manage Queries') . "</a> > </div><div class='trailEnd'>" . _('Run Query') . "</div>" ;
+	print "<div class='trailHead'><a href='" . $session->get("absoluteURL") . "'>" . _("Home") . "</a> > <a href='" . $session->get("absoluteURL") . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/" . getModuleEntry($_GET["q"], $connection2, $guid) . "'>" . getModuleName($_GET["q"]) . "</a> > <a href='" . $session->get("absoluteURL") . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/queries.php'>" . _('Manage Queries') . "</a> > </div><div class='trailEnd'>" . _('Run Query') . "</div>" ;
 	print "</div>" ;
 	
 	$search=NULL ;
@@ -40,7 +40,7 @@ else {
 	}
 	if ($search!="") {
 		print "<div class='linkTop'>" ;
-			print "<a href='" . $_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/Query Builder/queries.php&search=$search'>" . _('Back to Search Results') . "</a>" ;
+			print "<a href='" . $session->get("absoluteURL") . "/index.php?q=/modules/Query Builder/queries.php&search=$search'>" . _('Back to Search Results') . "</a>" ;
 		print "</div>" ;
 	}
 	
@@ -57,7 +57,7 @@ else {
 		print "</div>" ;
 	}
 	else {
-		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
+		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$session->get("gibbonPersonID")); 
 		$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND ((gibbonPersonID=:gibbonPersonID AND type='Personal') OR type='School' OR type='gibbonedu.com') AND active='Y'" ;
 		$error = "<div class='error'>\n{message}\n</div>\n" ; 
 		$result = $pdo->executeQuery($data, $sql, $error);
@@ -95,21 +95,21 @@ else {
 				}
 			print "</table>" ;
 			?>
-			<form method="post" action="<?php print $_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/" . $_SESSION[$guid]["module"] . "/queries_run.php&queryBuilderQueryID=$queryBuilderQueryID&sidebar=false&search=$search" ?>">
+			<form method="post" action="<?php print $session->get("absoluteURL") . "/index.php?q=/modules/" . $session->get("module") . "/queries_run.php&queryBuilderQueryID=$queryBuilderQueryID&sidebar=false&search=$search" ?>">
 				<table class='smallIntBorder' cellspacing='0' style="width: 100%">	
 					<tr>
 						<td colspan=2> 
 							<b>Query *</b>
 							<?php
 							print "<div class='linkTop' style='margin-top: 0px'>" ;
-								print "<a class='thickbox' href='" . $_SESSION[$guid]["absoluteURL"] . "/fullscreen.php?q=/modules/" . $_SESSION[$guid]["module"] . "/queries_help_full.php&width=1100&height=550'><img title='Query Help' src='./themes/" . $_SESSION[$guid]["gibbonThemeName"] . "/img/help.png'/></a>" ;
+								print "<a class='thickbox' href='" . $session->get("absoluteURL") . "/fullscreen.php?q=/modules/" . $session->get("module") . "/queries_help_full.php&width=1100&height=550'><img title='Query Help' src='./themes/" . $session->get("gibbonThemeName") . "/img/help.png'/></a>" ;
 							print "</div>" ;
 							?>
 							<textarea name="query" id='query' style="display: none;"><?php if (isset($_POST["query"])) { print htmlPrep($_POST["query"]) ; } else { print htmlPrep($row["query"]) ; } ?></textarea>
 					
 							<div id="editor" style='width: 1058px; height: 400px;'><?php if (isset($_POST["query"])) { print htmlPrep($_POST["query"]) ; } else { print htmlPrep($row["query"]) ; } ?></div>
 	
-							<script src="<?php print $_SESSION[$guid]["absoluteURL"] ?>/modules/Query Builder/lib/ace/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+							<script src="<?php print $session->get("absoluteURL") ?>/modules/Query Builder/lib/ace/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 							<script>
 								var editor = ace.edit("editor");
 								editor.getSession().setMode("ace/mode/mysql");
@@ -129,9 +129,9 @@ else {
 							<span style="font-size: 90%"><i>* <?php print _("denotes a required field") ; ?></i></span>
 						</td>
 						<td class="right">
-							<input type="hidden" name="address" value="<?php print $_SESSION[$guid]["address"] ?>">
+							<input type="hidden" name="address" value="<?php print $session->get("address") ?>">
 							<?php
-							if ($row["type"]=="Personal" OR ($row["type"]=="School" AND $row["gibbonPersonID"]==$_SESSION[$guid]["gibbonPersonID"])) {
+							if ($row["type"]=="Personal" OR ($row["type"]=="School" AND $row["gibbonPersonID"]==$session->get("gibbonPersonID"))) {
 								print "Save Query? <input " ;
 								if ($save=="Y") {
 									print "checked " ;
@@ -196,9 +196,9 @@ else {
 						print "<div class='success'>Your query has returned " . $result->rowCount() . " rows, which are displayed below.</div>" ; 
 					
 						print "<div class='linkTop'>" ;
-							print "<form id='queryExport' method='post' action='" . $_SESSION[$guid]["absoluteURL"] . "/modules/" . $_SESSION[$guid]["module"] . "/queries_run_export.php?queryBuilderQueryID=$queryBuilderQueryID'>" ;
+							print "<form id='queryExport' method='post' action='" . $session->get("absoluteURL") . "/modules/" . $session->get("module") . "/queries_run_export.php?queryBuilderQueryID=$queryBuilderQueryID'>" ;
 								print "<input name='query' value=\"" . $query . "\" type='hidden'>" ;
-								print "<input style='background:url(./themes/" . $_SESSION[$guid]["gibbonThemeName"] . "/img/download.png) no-repeat; cursor:pointer; min-width: 25px!important; max-width: 25px!important; max-height: 25px; border: none;' type='submit' value=''>" ;
+								print "<input style='background:url(./themes/" . $session->get("gibbonThemeName") . "/img/download.png) no-repeat; cursor:pointer; min-width: 25px!important; max-width: 25px!important; max-height: 25px; border: none;' type='submit' value=''>" ;
 							print "</form>" ;
 						print "</div>" ;
 						

@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-@session_start() ;
+
 
 if (isActionAccessible($guid, $connection2, "/modules/Query Builder/queries_delete.php")==FALSE) {
 	//Acess denied
@@ -28,7 +28,7 @@ if (isActionAccessible($guid, $connection2, "/modules/Query Builder/queries_dele
 else {
 	//Proceed!
 	print "<div class='trail'>" ;
-	print "<div class='trailHead'><a href='" . $_SESSION[$guid]["absoluteURL"] . "'>" . _("Home") . "</a> > <a href='" . $_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/" . getModuleEntry($_GET["q"], $connection2, $guid) . "'>" . getModuleName($_GET["q"]) . "</a> > <a href='" . $_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/queries.php'>" . _('Manage Queries') . "</a> > </div><div class='trailEnd'>" . _('Delete Query') . "</div>" ;
+	print "<div class='trailHead'><a href='" . $session->get("absoluteURL") . "'>" . _("Home") . "</a> > <a href='" . $session->get("absoluteURL") . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/" . getModuleEntry($_GET["q"], $connection2, $guid) . "'>" . getModuleName($_GET["q"]) . "</a> > <a href='" . $session->get("absoluteURL") . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/queries.php'>" . _('Manage Queries') . "</a> > </div><div class='trailEnd'>" . _('Delete Query') . "</div>" ;
 	print "</div>" ;
 	
 	if (isset($_GET["deleteReturn"])) { $deleteReturn=$_GET["deleteReturn"] ; } else { $deleteReturn="" ; }
@@ -58,7 +58,7 @@ else {
 	}
 	if ($search!="") {
 		print "<div class='linkTop'>" ;
-			print "<a href='" . $_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/Query Builder/queries.php&search=$search'>" . _('Back to Search Results') . "</a>" ;
+			print "<a href='" . $session->get("absoluteURL") . "/index.php?q=/modules/Query Builder/queries.php&search=$search'>" . _('Back to Search Results') . "</a>" ;
 		print "</div>" ;
 	}
 	
@@ -71,7 +71,7 @@ else {
 	}
 	else {
 		$error = "<div class='error'>\n" . $e->getMessage() . "\n</div>\n" ; 
-		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
+		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$session->get("gibbonPersonID")); 
 		$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND NOT type='gibbonedu.com' AND gibbonPersonID=:gibbonPersonID" ;
 		$pdo->executeQuery($data, $sql, $error);
 
@@ -84,7 +84,7 @@ else {
 			//Let's go!
 			$row=$result->fetch() ;
 			?>
-			<form method="post" action="<?php print $_SESSION[$guid]["absoluteURL"] . "/modules/" . $_SESSION[$guid]["module"] . "/queries_deleteProcess.php?queryBuilderQueryID=$queryBuilderQueryID&search=$search" ?>">
+			<form method="post" action="<?php print $session->get("absoluteURL") . "/modules/" . $session->get("module") . "/queries_deleteProcess.php?queryBuilderQueryID=$queryBuilderQueryID&search=$search" ?>">
 				<table class='smallIntBorder' cellspacing='0' style="width: 100%">	
 					<tr>
 						<td> 
@@ -97,7 +97,7 @@ else {
 					</tr>
 					<tr>
 						<td> 
-							<input type="hidden" name="address" value="<?php print $_SESSION[$guid]["address"] ?>">
+							<input type="hidden" name="address" value="<?php print $session->get("address") ?>">
 							<input type="submit" value="<?php print _('Yes') ; ?>">
 						</td>
 						<td class="right">

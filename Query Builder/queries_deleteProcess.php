@@ -17,23 +17,23 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-include "../../Gibbon.php" ;
+require_once "../../Gibbon.php" ;
 
 //New PDO DB connection
 $pdo = new Gibbon\sqlConnection();
 $connection2 = $pdo->getConnection();
-@session_start() ;
+
 
 //Set timezone from session variable
-date_default_timezone_set($_SESSION[$guid]["timezone"]);
+date_default_timezone_set($session->get("timezone"));
 
 $search=NULL ;
 if (isset($_GET["search"])) {
 	$search=$_GET["search"] ;
 }
 $queryBuilderQueryID=$_GET["queryBuilderQueryID"] ;
-$URL=$_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/" . getModuleName($_POST["address"]) . "/queries_delete.php&queryBuilderQueryID=" . $queryBuilderQueryID . "&search=$search" ;
-$URLDelete=$_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/" . getModuleName($_POST["address"]) . "/queries.php&search=$search" ;
+$URL=$session->get("absoluteURL") . "/index.php?q=/modules/" . getModuleName($_POST["address"]) . "/queries_delete.php&queryBuilderQueryID=" . $queryBuilderQueryID . "&search=$search" ;
+$URLDelete=$session->get("absoluteURL") . "/index.php?q=/modules/" . getModuleName($_POST["address"]) . "/queries.php&search=$search" ;
 
 if (isActionAccessible($guid, $connection2, "/modules/Query Builder/queries_delete.php")==FALSE) {
 	//Fail 0
@@ -49,7 +49,7 @@ else {
 		header("Location: {$URL}");
 	}
 	else {
-		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
+		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$session->get("gibbonPersonID")); 
 		$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND NOT type='gibbonedu.com' AND gibbonPersonID=:gibbonPersonID" ;
 		$pdo->executeQuery($data, $sql);
 		if (! $pdo->getQuerySuccess())

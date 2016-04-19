@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-@session_start() ;
+
 
 if (isActionAccessible($guid, $connection2, "/modules/Query Builder/queries_edit.php")==FALSE) {
 	//Acess denied
@@ -28,7 +28,7 @@ if (isActionAccessible($guid, $connection2, "/modules/Query Builder/queries_edit
 else {
 	//Proceed!
 	print "<div class='trail'>" ;
-	print "<div class='trailHead'><a href='" . $_SESSION[$guid]["absoluteURL"] . "'>" . _("Home") . "</a> > <a href='" . $_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/" . getModuleEntry($_GET["q"], $connection2, $guid) . "'>" . getModuleName($_GET["q"]) . "</a> > <a href='" . $_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/queries.php'>" . _('Manage Queries') . "</a> > </div><div class='trailEnd'>" . _('Edit Query') . "</div>" ;
+	print "<div class='trailHead'><a href='" . $session->get("absoluteURL") . "'>" . _("Home") . "</a> > <a href='" . $session->get("absoluteURL") . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/" . getModuleEntry($_GET["q"], $connection2, $guid) . "'>" . getModuleName($_GET["q"]) . "</a> > <a href='" . $session->get("absoluteURL") . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/queries.php'>" . _('Manage Queries') . "</a> > </div><div class='trailEnd'>" . _('Edit Query') . "</div>" ;
 	print "</div>" ;
 	
 	if (isset($_GET["updateReturn"])) { $updateReturn=$_GET["updateReturn"] ; } else { $updateReturn="" ; }
@@ -65,7 +65,7 @@ else {
 	}
 	if ($search!="") {
 		print "<div class='linkTop'>" ;
-			print "<a href='" . $_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/Query Builder/queries.php&search=$search'>" . _('Back to Search Results') . "</a>" ;
+			print "<a href='" . $session->get("absoluteURL") . "/index.php?q=/modules/Query Builder/queries.php&search=$search'>" . _('Back to Search Results') . "</a>" ;
 		print "</div>" ;
 	}
 	
@@ -77,7 +77,7 @@ else {
 		print "</div>" ;
 	}
 	else {
-		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
+		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$session->get("gibbonPersonID")); 
 		$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND NOT type='gibbonedu.com' AND gibbonPersonID=:gibbonPersonID" ;
 		$error ="<div class='error'>\n" . $e->getMessage() . "\n</div>\n" ; 
 		$result = $pdo->executeQuery($data, $sql);
@@ -92,7 +92,7 @@ else {
 			//Let's go!
 			$row=$result->fetch() ;
 			?>
-			<form method="post" action="<?php print $_SESSION[$guid]["absoluteURL"] . "/modules/" . $_SESSION[$guid]["module"] . "/queries_editProcess.php?queryBuilderQueryID=$queryBuilderQueryID&search=$search" ?>">
+			<form method="post" action="<?php print $session->get("absoluteURL") . "/modules/" . $session->get("module") . "/queries_editProcess.php?queryBuilderQueryID=$queryBuilderQueryID&search=$search" ?>">
 				<table class='smallIntBorder' cellspacing='0' style="width: 100%">	
 					<tr>
 						<td> 
@@ -130,7 +130,7 @@ else {
 							$(function() {
 								var availableTags=[
 									<?php
-									$dataAuto=array("gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
+									$dataAuto=array("gibbonPersonID"=>$session->get("gibbonPersonID")); 
 									$sqlAuto="SELECT DISTINCT category FROM queryBuilderQuery WHERE type='School' OR type='gibbonedu.com' OR (type='Personal' AND gibbonPersonID=:gibbonPersonID) ORDER BY category" ;
 									$resultAuto = $pdo->executeQuery($dataAuto, $sqlAuto);
 									while ($rowAuto=$resultAuto->fetch()) {
@@ -167,14 +167,14 @@ else {
 							<b>Query *</b>
 							<?php
 							print "<div class='linkTop' style='margin-top: 0px'>" ;
-								print "<a class='thickbox' href='" . $_SESSION[$guid]["absoluteURL"] . "/fullscreen.php?q=/modules/" . $_SESSION[$guid]["module"] . "/queries_help_full.php&width=1100&height=550'><img title='Query Help' src='./themes/" . $_SESSION[$guid]["gibbonThemeName"] . "/img/help.png'/></a>" ;
+								print "<a class='thickbox' href='" . $session->get("absoluteURL") . "/fullscreen.php?q=/modules/" . $session->get("module") . "/queries_help_full.php&width=1100&height=550'><img title='Query Help' src='./themes/" . $session->get("gibbonThemeName") . "/img/help.png'/></a>" ;
 							print "</div>" ;
 							?>
 							<textarea name="query" id='query' style="display: none;"><?php print htmlPrep($row["query"]) ?></textarea>
 							
 							<div id="editor" style='width: 1058px; height: 400px;'><?php print htmlPrep($row["query"]) ?></div>
 	
-							<script src="<?php print $_SESSION[$guid]["absoluteURL"] ?>/modules/Query Builder/lib/ace/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+							<script src="<?php print $session->get("absoluteURL") ?>/modules/Query Builder/lib/ace/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 							<script>
 								var editor = ace.edit("editor");
 								editor.getSession().setMode("ace/mode/mysql");
@@ -194,7 +194,7 @@ else {
 							<span style="font-size: 90%"><i>* <?php print _("denotes a required field") ; ?></i></span>
 						</td>
 						<td class="right">
-							<input type="hidden" name="address" value="<?php print $_SESSION[$guid]["address"] ?>">
+							<input type="hidden" name="address" value="<?php print $session->get("address") ?>">
 							<input type="submit" value="<?php print _("Submit") ; ?>">
 						</td>
 					</tr>

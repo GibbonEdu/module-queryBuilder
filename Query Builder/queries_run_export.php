@@ -24,12 +24,12 @@ $pdo = new Gibbon\sqlConnection();
 $connection2 = $pdo->getConnection();
 
 //Set timezone from session variable
-date_default_timezone_set($_SESSION[$guid]["timezone"]);
+date_default_timezone_set($session->get("timezone"));
 
 $queryBuilderQueryID=$_GET["queryBuilderQueryID"] ;
 $query=$_POST["query"] ;
 
-$URL=$_SESSION[$guid]["absoluteURL"] . "/index.php" ;
+$URL=$session->get("absoluteURL") . "/index.php" ;
 
 if (isActionAccessible($guid, $connection2, "/modules/Query Builder/queries_run.php")==FALSE) {
 	//Fail 0
@@ -43,7 +43,7 @@ else {
 		header("Location: {$URL}");
 	}
 	else {
-		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$_SESSION[$guid]["gibbonPersonID"]); 
+		$data=array("queryBuilderQueryID"=>$queryBuilderQueryID, "gibbonPersonID"=>$session->get("gibbonPersonID")); 
 		$sql="SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND (gibbonPersonID=:gibbonPersonID OR NOT type='Personal') AND active='Y'" ;
 		$result = $pdo->executeQuery($data, $sql);
 		if (! $pdo->getQuerySuccess())

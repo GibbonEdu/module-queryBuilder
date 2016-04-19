@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-@session_start() ;
+
 
 if (isActionAccessible($guid, $connection2, "/modules/Query Builder/queries_sync.php")==FALSE) {
 	//Acess denied
@@ -28,7 +28,7 @@ if (isActionAccessible($guid, $connection2, "/modules/Query Builder/queries_sync
 else {
 	//Proceed!
 	print "<div class='trail'>" ;
-	print "<div class='trailHead'><a href='" . $_SESSION[$guid]["absoluteURL"] . "'>" . _("Home") . "</a> > <a href='" . $_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/" . getModuleEntry($_GET["q"], $connection2, $guid) . "'>" . getModuleName($_GET["q"]) . "</a> > <a href='" . $_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/queries.php'>" . _('Manage Queries') . "</a> > </div><div class='trailEnd'>" . _('Sync Queries') . "</div>" ;
+	print "<div class='trailHead'><a href='" . $session->get("absoluteURL") . "'>" . _("Home") . "</a> > <a href='" . $session->get("absoluteURL") . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/" . getModuleEntry($_GET["q"], $connection2, $guid) . "'>" . getModuleName($_GET["q"]) . "</a> > <a href='" . $session->get("absoluteURL") . "/index.php?q=/modules/" . getModuleName($_GET["q"]) . "/queries.php'>" . _('Manage Queries') . "</a> > </div><div class='trailEnd'>" . _('Sync Queries') . "</div>" ;
 	print "</div>" ;
 	
 	print "<p>" ;
@@ -61,7 +61,7 @@ else {
 						$("#status").html('Success! Your system has a valid license to access value added Query Builder queries from gibbonedu.com. We are now syncing your queries. Watch here for results.') ;
 						$.ajax({
 							type: "POST",
-            				url: "<?php print $_SESSION[$guid]["absoluteURL"] ?>/modules/Query Builder/queries_gibboneducom_sync_ajax.php",
+            				url: "<?php print $session->get("absoluteURL") ?>/modules/Query Builder/queries_gibboneducom_sync_ajax.php",
 							data: { gibboneduComOrganisationName: "<?php print $gibboneduComOrganisationName ?>", gibboneduComOrganisationKey: "<?php print $gibboneduComOrganisationKey ?>", service: "queryBuilder", queries: JSON.stringify(data) },
 							success: function(data) {
 								if (data==="fail") {
@@ -70,7 +70,7 @@ else {
 								}
 								else {
 									$("#status").attr("class","success");
-									$("#status").html('Your queries have been successfully synced. Please <a href=\'<?php print $_SESSION[$guid]["absoluteURL"] ?>/index.php?q=/modules/Query Builder/queries.php\'>click here</a> to return to your query list.') ;
+									$("#status").html('Your queries have been successfully synced. Please <a href=\'<?php print $session->get("absoluteURL") ?>/index.php?q=/modules/Query Builder/queries.php\'>click here</a> to return to your query list.') ;
 								}
 							},
 							error: function (data, textStatus, errorThrown) {
@@ -84,7 +84,7 @@ else {
 					$("#status").attr("class","error");
 					$("#status").html('Checking gibbonedu.com license for access to value added Query Builder queries has failed. You may still use your own queries.') ;
 					$.ajax({
-						url: "<?php print $_SESSION[$guid]["absoluteURL"] ?>/modules/Query Builder/queries_gibboneducom_remove_ajax.php",
+						url: "<?php print $session->get("absoluteURL") ?>/modules/Query Builder/queries_gibboneducom_remove_ajax.php",
 						data: "gibboneduComOrganisationName=<?php print $gibboneduComOrganisationName ?>&gibboneduComOrganisationKey=<?php print $gibboneduComOrganisationKey ?>&service=queryBuilder"
 					});
 				}
@@ -95,7 +95,7 @@ else {
 	
 	print "<div id='status' class='warning'>" ;
 		print "<div style='width: 100%; text-align: center'>" ;
-			print "<img style='margin: 10px 0 5px 0' src='" . $_SESSION[$guid]["absoluteURL"] . "/themes/Default/img/loading.gif' alt='Loading'/><br/>" ;
+			print "<img style='margin: 10px 0 5px 0' src='" . $session->get("absoluteURL") . "/themes/Default/img/loading.gif' alt='Loading'/><br/>" ;
 			print "Checking gibbonedu.com value added license status." ;
 		print "</div>" ;
 	print "</div>" ;

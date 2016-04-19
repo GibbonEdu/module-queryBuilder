@@ -17,16 +17,16 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-@session_start() ;
+
 
 //Gibbon system-wide includes
-include "../../Gibbon.php" ;
+require_once "../../Gibbon.php" ;
 
 //New PDO DB connection
 $pdo = new Gibbon\sqlConnection();
 $connection2 = $pdo->getConnection();
 //Module includes
-include $_SESSION[$guid]["absolutePath"] . "/modules/" . $_SESSION[$guid]["module"] . "/moduleFunctions.php" ;
+include $session->get("absolutePath") . "/modules/" . $session->get("module") . "/moduleFunctions.php" ;
 
 //Setup variables
 $gibboneduComOrganisationName=$_GET["gibboneduComOrganisationName"] ;

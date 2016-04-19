@@ -17,22 +17,22 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-include "../../Gibbon.php" ;
+require_once "../../Gibbon.php" ;
 
 //New PDO DB connection
 $pdo = new Gibbon\sqlConnection();
 $connection2 = $pdo->getConnection();
-@session_start() ;
+
 
 //Set timezone from session variable
-date_default_timezone_set($_SESSION[$guid]["timezone"]);
+date_default_timezone_set($session->get("timezone"));
 
 $search=NULL ;
 if (isset($_GET["search"])) {
 	$search=$_GET["search"] ;
 }
 $queryBuilderQueryID=$_GET["queryBuilderQueryID"] ;
-$URL=$_SESSION[$guid]["absoluteURL"] . "/index.php?q=/modules/" . getModuleName($_POST["address"]) . "/queries_duplicate.php&queryBuilderQueryID=" . $queryBuilderQueryID . "&search=$search" ;
+$URL=$session->get("absoluteURL") . "/index.php?q=/modules/" . getModuleName($_POST["address"]) . "/queries_duplicate.php&queryBuilderQueryID=" . $queryBuilderQueryID . "&search=$search" ;
 
 if (isActionAccessible($guid, $connection2, "/modules/Query Builder/queries_duplicate.php")==FALSE) {
 	//Fail 0
@@ -74,7 +74,7 @@ else {
 			$active=$row["active"] ;
 			$description=$row["description"] ;
 			$query=$row["query"] ;
-			$gibbonPersonID=$_SESSION[$guid]["gibbonPersonID"] ;
+			$gibbonPersonID=$session->get("gibbonPersonID") ;
 	
 			if ($name=="" OR $category=="" OR $active=="" OR $query=="") {
 				//Fail 3
