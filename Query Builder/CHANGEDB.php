@@ -356,3 +356,12 @@ $sql[$count][1] = "
 $sql[$count][0] = '1.13.09';
 $sql[$count][1] = "
 ";
+
+//v2.00.00
+++$count;
+$sql[$count][0] = '2.00.00';
+$sql[$count][1] = "
+INSERT INTO `gibbonAction` (`gibbonModuleID`, `name`, `precedence`, `category`, `description`, `URLList`, `entryURL`, `defaultPermissionAdmin`, `defaultPermissionTeacher`, `defaultPermissionStudent`, `defaultPermissionParent`, `defaultPermissionSupport`, `categoryPermissionStaff`, `categoryPermissionStudent`, `categoryPermissionParent`, `categoryPermissionOther`) VALUES ((SELECT gibbonModuleID FROM gibbonModule WHERE name='Query Builder'), 'Manage Commands_run', '0', 'Queries', 'Allows a user to run commands but not add or edit them.', 'commands.php, commands_run.php', 'commands.php', 'N', 'N', 'N', 'N', 'N', 'Y', 'N', 'N', 'N');end
+INSERT INTO `gibbonAction` (`gibbonModuleID`, `name`, `precedence`, `category`, `description`, `URLList`, `entryURL`, `defaultPermissionAdmin`, `defaultPermissionTeacher`, `defaultPermissionStudent`, `defaultPermissionParent`, `defaultPermissionSupport`, `categoryPermissionStaff`, `categoryPermissionStudent`, `categoryPermissionParent`, `categoryPermissionOther`) VALUES ((SELECT gibbonModuleID FROM gibbonModule WHERE name='Query Builder'), 'Manage Commands_viewEditAll', '1', 'Queries', 'Allows a user to run and edit all commands.', 'commands.php, commands_add.php, commands_edit.php, commands_duplicate.php, commands_delete.php, commands_run.php', 'commands.php', 'Y', 'N', 'N', 'N', 'N', 'Y', 'N', 'N', 'N');end
+INSERT INTO `gibbonPermission` (`gibbonRoleID` ,`gibbonActionID`) VALUES (001, (SELECT gibbonActionID FROM gibbonAction JOIN gibbonModule ON (gibbonAction.gibbonModuleID=gibbonModule.gibbonModuleID) WHERE gibbonModule.name='Query Builder' AND gibbonAction.name='Manage Commands_viewEditAll'));end
+";
