@@ -21,17 +21,17 @@ use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 
 include '../../gibbon.php';
 
-
-$search = $_GET['search'] ?? '';
 $queryBuilderQueryID = $_GET['queryBuilderQueryID'] ?? '';
-$URL = $session->get('absoluteURL').'/index.php?q=/modules/'.getModuleName($_POST['address']).'/queries_edit.php&queryBuilderQueryID='.$queryBuilderQueryID."&sidebar=false&search=$search";
+$search = $_GET['search'] ?? '';
+
+$URL = $session->get('absoluteURL').'/index.php?q=/modules/Query Builder/queries_edit.php&queryBuilderQueryID='.$queryBuilderQueryID."&sidebar=false&search=$search";
 
 if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit.php') == false) {
     $URL = $URL.'&return=error0';
     header("Location: {$URL}");
     exit;
 } else {
-    //Proceed!
+    // Proceed!
     $queryGateway = $container->get(QueryGateway::class);
 
     list($moduleName, $actionName) = !empty($_POST['moduleActionName']) ? explode(':', $_POST['moduleActionName']) : [null, null];

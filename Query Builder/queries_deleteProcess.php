@@ -17,59 +17,47 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
+
 include '../../gibbon.php';
 
-
-$search = $_GET['search'] ?? null;
 $queryBuilderQueryID = $_GET['queryBuilderQueryID'] ?? '';
-$URL = $session->get('absoluteURL').'/index.php?q=/modules/'.getModuleName($_POST['address']).'/queries_delete.php&queryBuilderQueryID='.$queryBuilderQueryID."&search=$search";
-$URLDelete = $session->get('absoluteURL').'/index.php?q=/modules/'.getModuleName($_POST['address'])."/queries.php&search=$search";
+$search = $_GET['search'] ?? '';
+
+$URL = $session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries_delete.php&queryBuilderQueryID=$queryBuilderQueryID&search=$search";
+$URLDelete = $session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries.php&search=$search";
 
 if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_delete.php') == false) {
-    //Fail 0
+    // Access denied
     $URL = $URL.'&return=error0';
     header("Location: {$URL}");
 } else {
-    //Proceed!
-    //Check if school year specified
-    if ($queryBuilderQueryID == '') {
-        //Fail1
+    // Proceed!
+    $queryGateway = $container->get(QueryGateway::class);
+
+    // Validate the required values are present
+    if (empty($queryBuilderQueryID)) {
         $URL = $URL.'&return=error1';
         header("Location: {$URL}");
-    } else {
-        try {
-            $data = array('queryBuilderQueryID' => $queryBuilderQueryID, 'gibbonPersonID' => $session->get('gibbonPersonID'));
-            $sql = "SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND NOT type='gibbonedu.com' AND (type='School' OR (type='Personal' AND gibbonPersonID=:gibbonPersonID) )";
-            $result = $connection2->prepare($sql);
-            $result->execute($data);
-        } catch (PDOException $e) {
-            //Fail2
-            $URL = $URL.'&return=error2';
-            header("Location: {$URL}");
-            exit();
-        }
+        exit;
+    } 
 
-        if ($result->rowCount() != 1) {
-            //Fail 2
-            $URL = $URL.'&return=error2';
-            header("Location: {$URL}");
-        } else {
-            //Write to database
-            try {
-                $data = array('queryBuilderQueryID' => $queryBuilderQueryID);
-                $sql = 'DELETE FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID';
-                $result = $connection2->prepare($sql);
-                $result->execute($data);
-            } catch (PDOException $e) {
-                //Fail2
-                $URL = $URL.'&return=error2';
-                header("Location: {$URL}");
-                exit();
-            }
-
-            //Success 0
-            $URLDelete = $URLDelete.'&return=success0';
-            header("Location: {$URLDelete}");
-        }
+    // Validate this user has access to this query
+    if (empty($queryGateway->getQueryByPerson($queryBuilderQueryID, $session->get('gibbonPersonID'), true))) {
+        $URL = $URL.'&return=error2';
+        header("Location: {$URL}");
+        exit;
     }
+
+    // Delete record
+    $deleted = $queryGateway->delete($queryBuilderQueryID);
+
+    if (!$deleted) {
+        $URL = $URL.'&return=error2';
+        header("Location: {$URL}");
+        exit;
+    }
+
+    $URLDelete = $URLDelete.'&return=success0';
+    header("Location: {$URLDelete}");
 }

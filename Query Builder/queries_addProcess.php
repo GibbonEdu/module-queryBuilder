@@ -26,12 +26,12 @@ $search = $_GET['search'] ?? '';
 $URL = $session->get('absoluteURL').'/index.php?q=/modules/'.getModuleName($_POST['address'])."/queries_add.php&sidebar=false&search=$search";
 
 if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_add.php') == false) {
-    //Fail 0
+    // Fail 0
     $URL = $URL.'&return=error0';
     header("Location: {$URL}");
     exit;
 } else {
-    //Proceed!
+    // Proceed!
     $queryGateway = $container->get(QueryGateway::class);
 
     list($moduleName, $actionName) = !empty($_POST['moduleActionName']) ? explode(':', $_POST['moduleActionName']) : [null, null];
@@ -65,11 +65,11 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_add.
 
     // Update the record
     $inserted = $queryGateway->insert($data);
-    $AI = str_pad($inserted, 10, '0', STR_PAD_LEFT);
+    $queryBuilderQueryID = str_pad($inserted, 10, '0', STR_PAD_LEFT);
 
     $URL .= !$inserted
         ? "&return=error2"
         : "&return=success0";
 
-    header("Location: {$URL}&editID={$AI}");
+    header("Location: {$URL}&editID={$queryBuilderQueryID}");
 }

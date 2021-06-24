@@ -17,78 +17,62 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
+
 include '../../gibbon.php';
 
-
-$search = $_GET['search'] ?? null;
 $queryBuilderQueryID = $_GET['queryBuilderQueryID'] ?? '';
+$search = $_GET['search'] ?? '';
+
 $URL = $session->get('absoluteURL').'/index.php?q=/modules/'.getModuleName($_POST['address']).'/queries_duplicate.php&queryBuilderQueryID='.$queryBuilderQueryID."&search=$search";
 
 if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_duplicate.php') == false) {
-    //Fail 0
+    // Access denied
     $URL = $URL.'&return=error0';
     header("Location: {$URL}");
 } else {
-    //Proceed!
-    //Check if school year specified
-    if ($queryBuilderQueryID == '') {
-        //Fail1
+    // Proceed!
+    $queryGateway = $container->get(QueryGateway::class);
+    
+    // Validate the required values are present
+    if (empty($queryBuilderQueryID)) {
         $URL = $URL.'&return=error1';
         header("Location: {$URL}");
-    } else {
-        try {
-            $data = array('queryBuilderQueryID' => $queryBuilderQueryID);
-            $sql = 'SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID';
-            $result = $connection2->prepare($sql);
-            $result->execute($data);
-        } catch (PDOException $e) {
-            //Fail2
-            $URL = $URL.'&deleteReturn=error2';
-            header("Location: {$URL}");
-            exit();
-        }
-
-        if ($result->rowCount() != 1) {
-            //Fail 2
-            $URL = $URL.'&return=error2';
-            header("Location: {$URL}");
-        } else {
-            $row = $result->fetch();
-
-            //Validate Inputs
-            $name = $_POST['name'] ?? '';
-            $type = $_POST['type'] ?? '';
-            $category = $row['category'];
-            $moduleName = $row['moduleName'];
-            $actionName = $row['actionName'];
-            $active = $row['active'];
-            $description = $row['description'];
-            $query = $row['query'];
-            $bindValues = $row['bindValues'];
-            $gibbonPersonID = $session->get('gibbonPersonID');
-
-            if ($name == '' or $category == '' or $active == '' or $query == '') {
-                //Fail 3
-                $URL = $URL.'&return=error3';
-                header("Location: {$URL}");
-            } else {
-                //Write to database
-                try {
-                    $data = array('type' => $type, 'name' => $name, 'category' => $category, 'moduleName' => $moduleName, 'actionName' => $actionName, 'active' => $active, 'description' => $description, 'query' => $query, 'bindValues' => $bindValues, 'gibbonPersonID' => $gibbonPersonID);
-                    $sql = 'INSERT INTO queryBuilderQuery SET type=:type, name=:name, category=:category, moduleName=:moduleName, actionName=:actionName, active=:active, description=:description, query=:query, bindValues=:bindValues, gibbonPersonID=:gibbonPersonID';
-                    $result = $connection2->prepare($sql);
-                    $result->execute($data);
-                } catch (PDOException $e) {
-                    //Fail 2
-                    $URL = $URL.'&return=error2';
-                    header("Location: {$URL}");
-                    exit();
-                }
-
-                //Success 0
-                $URL = $URL.'&return=success0';
-                header("Location: {$URL}");
-            }
-        }
+        exit;
     }
+
+    // Validate the database record exists
+    $values = $queryGateway->getQueryByPerson($queryBuilderQueryID, $session->get('gibbonPersonID'));
+    if (empty($values)) {
+        $URL = $URL.'&return=error2';
+        header("Location: {$URL}");
+        exit;
+    }
+
+    // Validate Inputs
+    $data = [
+        'name'           => $_POST['name'] ?? '',
+        'type'           => $_POST['type'] ?? '',
+        'category'       => $values['category'],
+        'moduleName'     => $values['moduleName'],
+        'actionName'     => $values['actionName'],
+        'active'         => $values['active'],
+        'description'    => $values['description'],
+        'query'          => $values['query'],
+        'bindValues'     => $values['bindValues'],
+        'gibbonPersonID' => $session->get('gibbonPersonID'),
+    ];
+
+    if (empty($data['name']) || empty($data['category']) || empty($data['active']) || empty($data['query'])) {
+        $URL = $URL.'&return=error3';
+        header("Location: {$URL}");
+        exit;
+    } 
+
+    // Insert the record
+    $inserted = $queryGateway->insert($data);
+    $queryBuilderQueryID = str_pad($inserted, 10, '0', STR_PAD_LEFT);
+
+    $URL = $URL.'&return=success0&editID='.$queryBuilderQueryID;
+    header("Location: {$URL}");
 }

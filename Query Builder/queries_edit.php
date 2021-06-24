@@ -24,135 +24,110 @@ use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 // Module includes
 include __DIR__.'/moduleFunctions.php';
 
-$page->breadcrumbs
-  ->add(__('Manage Queries'), 'queries.php')
-  ->add(__('Edit Query'));
-
 if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit.php') == false) {
-    //Acess denied
-    echo "<div class='error'>";
-    echo __($guid, 'You do not have access to this action.');
-    echo '</div>';
+    // Access denied
+    $page->addError(__('You do not have access to this action.'));
 } else {
-    //Proceed!
-    if (isset($_GET['return'])) {
-        returnProcess($guid, $_GET['return'], null, null);
-    }
+    // Proceed!
+    $page->breadcrumbs
+        ->add(__('Manage Queries'), 'queries.php')
+        ->add(__('Edit Query'));
 
-    $queryBuilderQueryID = isset($_GET['queryBuilderQueryID'])? $_GET['queryBuilderQueryID'] : '';
-    $search = isset($_GET['search'])? $_GET['search'] : '';
+    $queryGateway = $container->get(QueryGateway::class);
 
-    //Check if school year specified
+    $queryBuilderQueryID = $_GET['queryBuilderQueryID'] ?? '';
+    $search = $_GET['search'] ?? '';
+
+    // Validate the required values are present
     if (empty($queryBuilderQueryID)) {
-        echo "<div class='error'>";
-        echo __($guid, 'You have not specified one or more required parameters.');
-        echo '</div>';
-    } else {
-        $queryGateway = $container->get(QueryGateway::class);
+        $page->addError(__('You have not specified one or more required parameters.'));
+        return;
+    }
 
-        try {
-            $data = array('queryBuilderQueryID' => $queryBuilderQueryID, 'gibbonPersonID' => $session->get('gibbonPersonID'));
-            $sql = "SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID AND NOT type='gibbonedu.com' AND (type='School' OR (type='Personal' AND gibbonPersonID=:gibbonPersonID) )";
-            $result = $connection2->prepare($sql);
-            $result->execute($data);
-        } catch (PDOException $e) {
-            echo "<div class='error'>".$e->getMessage().'</div>';
-        }
+    // Validate the database record exists
+    $values = $queryGateway->getQueryByPerson($queryBuilderQueryID, $session->get('gibbonPersonID'), true);
+    if (empty($values)) {
+        $page->addError(__('The specified record cannot be found.'));
+        return;
+    }
 
-        if ($result->rowCount() != 1) {
-            echo "<div class='error'>";
-            echo __($guid, 'The specified record cannot be found.');
-            echo '</div>';
-        } else {
-            //Let's go!
-            $values = $result->fetch();
-
-            // Check for specific access to this query
-            if (!empty($values['actionName']) || !empty($values['moduleName'])) {
-                if (empty($queryGateway->getIsQueryAccessible($queryBuilderQueryID, $session->get('gibbonPersonID')))) {
-                    $page->addError(__('You do not have access to this action.'));
-                    return;
-                }
-            }
-
-            echo "<div class='linkTop'>";
-            $pipe = false ;
-            if ($search != '') {
-                echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries.php&search=$search'>".__($guid, 'Back to Search Results').'</a>';
-                $pipe = true;
-            }
-            echo '</div>';
-
-            $form = Form::create('queryBuilder', $session->get('absoluteURL').'/modules/'.$session->get('module').'/queries_editProcess.php?queryBuilderQueryID='.$queryBuilderQueryID.'&search='.$search);
-
-            $form->addHiddenValue('address', $session->get('address'));
-
-            $form->addHeaderAction('help', __('Help'))
-                ->setURL('/modules/Query Builder/queries_help_full.php')
-                ->setIcon('help')
-                ->addClass('underline')
-                ->displayLabel()
-                ->modalWindow();
-
-            if ($values['active'] == 'Y') {
-                $form->addHeaderAction('run', __('Run Query'))
-                    ->setURL('/modules/Query Builder/queries_run.php')
-                    ->addParam('search', $search)
-                    ->addParam('queryBuilderQueryID', $queryBuilderQueryID)
-                    ->addParam('sidebar', 'false')
-                    ->setIcon('run')
-                    ->displayLabel()
-                    ->prepend(" | ");
-            }
-
-            $row = $form->addRow();
-                $row->addLabel('type', __('Type'));
-                $row->addTextField('type')->isRequired()->readonly();
-
-            $row = $form->addRow();
-                $row->addLabel('name', __('Name'));
-                $row->addTextField('name')->maxLength(255)->isRequired();
-
-            $data = array('gibbonPersonID' => $session->get('gibbonPersonID'));
-            $sql = "SELECT DISTINCT category FROM queryBuilderQuery WHERE type='School' OR type='gibbonedu.com' OR (type='Personal' AND gibbonPersonID=:gibbonPersonID) ORDER BY category";
-            $result = $pdo->executeQuery($data, $sql);
-            $categories = ($result->rowCount() > 0)? $result->fetchAll(\PDO::FETCH_COLUMN, 0) : array();
-
-            $row = $form->addRow();
-                $row->addLabel('category', __('Category'));
-                $row->addTextField('category')->isRequired()->maxLength(100)->autocomplete($categories);
-
-            $row = $form->addRow();
-                $row->addLabel('active', __('Active'));
-                $row->addYesNo('active')->isRequired();
-
-            $actions = $queryGateway->selectActionListByPerson($session->get('gibbonPersonID'));
-
-            $row = $form->addRow();
-                $row->addLabel('moduleActionName', __('Limit Access'))->description(__('Only people with the selected permission can run this query.'));
-                $row->addSelect('moduleActionName')->fromResults($actions, 'groupBy')->placeholder()->selected($values['moduleName'].':'.$values['actionName']);
-
-            $row = $form->addRow();
-                $row->addLabel('description', __('Description'));
-                $row->addTextArea('description')->setRows(8);
-
-            $col = $form->addRow()->addColumn();
-                $col->addLabel('query', __('Query'));
-                $col->addCodeEditor('query')
-                    ->setMode('mysql')
-                    ->autocomplete(getAutocompletions($pdo))
-                    ->isRequired();
-
-            $bindValues = new BindValues($form->getFactory(), 'bindValues', $values, $session);
-            $form->addRow()->addElement($bindValues);
-
-            $row = $form->addRow();
-                $row->addFooter();
-                $row->addSubmit();
-
-            $form->loadAllValuesFrom($values);
-
-            echo $form->getOutput();
+    // Check for specific access to this query
+    if (!empty($values['actionName']) || !empty($values['moduleName'])) {
+        if (empty($queryGateway->getIsQueryAccessible($queryBuilderQueryID, $session->get('gibbonPersonID')))) {
+            $page->addError(__('You do not have access to this action.'));
+            return;
         }
     }
+    
+    if ($search != '') {
+        echo "<div class='linkTop'>";
+        echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries.php&search=$search'>".__($guid, 'Back to Search Results').'</a>';
+        echo '</div>';
+    }
+
+    $form = Form::create('queryBuilder', $session->get('absoluteURL').'/modules/'.$session->get('module').'/queries_editProcess.php?queryBuilderQueryID='.$queryBuilderQueryID.'&search='.$search);
+
+    $form->addHiddenValue('address', $session->get('address'));
+
+    $form->addHeaderAction('help', __('Help'))
+        ->setURL('/modules/Query Builder/queries_help_full.php')
+        ->setIcon('help')
+        ->addClass('underline')
+        ->displayLabel()
+        ->modalWindow();
+
+    if ($values['active'] == 'Y') {
+        $form->addHeaderAction('run', __('Run Query'))
+            ->setURL('/modules/Query Builder/queries_run.php')
+            ->addParam('search', $search)
+            ->addParam('queryBuilderQueryID', $queryBuilderQueryID)
+            ->addParam('sidebar', 'false')
+            ->setIcon('run')
+            ->displayLabel()
+            ->prepend(" | ");
+    }
+
+    $row = $form->addRow();
+        $row->addLabel('type', __('Type'));
+        $row->addTextField('type')->isRequired()->readonly();
+
+    $row = $form->addRow();
+        $row->addLabel('name', __('Name'));
+        $row->addTextField('name')->maxLength(255)->isRequired();
+
+    $categories = $queryGateway->selectCategoriesByPerson($session->get('gibbonPersonID'))->fetchAll(\PDO::FETCH_COLUMN, 0);
+    $row = $form->addRow();
+        $row->addLabel('category', __('Category'));
+        $row->addTextField('category')->isRequired()->maxLength(100)->autocomplete($categories);
+
+    $row = $form->addRow();
+        $row->addLabel('active', __('Active'));
+        $row->addYesNo('active')->isRequired();
+
+    $actions = $queryGateway->selectActionListByPerson($session->get('gibbonPersonID'));
+    $row = $form->addRow();
+        $row->addLabel('moduleActionName', __('Limit Access'))->description(__('Only people with the selected permission can run this query.'));
+        $row->addSelect('moduleActionName')->fromResults($actions, 'groupBy')->placeholder()->selected($values['moduleName'].':'.$values['actionName']);
+
+    $row = $form->addRow();
+        $row->addLabel('description', __('Description'));
+        $row->addTextArea('description')->setRows(8);
+
+    $col = $form->addRow()->addColumn();
+        $col->addLabel('query', __('Query'));
+        $col->addCodeEditor('query')
+            ->setMode('mysql')
+            ->autocomplete(getAutocompletions($pdo))
+            ->isRequired();
+
+    $bindValues = new BindValues($form->getFactory(), 'bindValues', $values, $session);
+    $form->addRow()->addElement($bindValues);
+
+    $row = $form->addRow();
+        $row->addFooter();
+        $row->addSubmit();
+
+    $form->loadAllValuesFrom($values);
+
+    echo $form->getOutput();
 }

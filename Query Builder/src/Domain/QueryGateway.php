@@ -40,7 +40,7 @@ class QueryGateway extends QueryableGateway
      * @param QueryCriteria $criteria
      * @return DataSet
      */
-    public function queryQueries(QueryCriteria $criteria, $gibbonPersonID)
+    public function queryQueries(QueryCriteria $criteria, $gibbonPersonID, $context = 'Query')
     {
         $data = ['gibbonPersonID' => $gibbonPersonID];
         $gibbonRoleIDAll = $this->db()->selectOne('SELECT gibbonRoleIDAll FROM gibbonPerson WHERE gibbonPersonID=:gibbonPersonID', $data);
@@ -61,6 +61,8 @@ class QueryGateway extends QueryableGateway
                 'permission',                   
                 "(permission.actionName=queryBuilderQuery.actionName OR permission.actionName LIKE CONCAT(queryBuilderQuery.actionName, '_%')) AND permission.moduleName=queryBuilderQuery.moduleName AND FIND_IN_SET(permission.gibbonRoleID, :gibbonRoleIDAll)"
             )
+            ->where('queryBuilderQuery.context=:context')
+            ->bindValue('context', $context)
             ->where(function($query) {
                 $query->where("(type='Personal' AND gibbonPersonID=:gibbonPersonID)")
                     ->orWhere("type='School'")
@@ -110,6 +112,28 @@ class QueryGateway extends QueryableGateway
             ) ORDER BY groupBy, name" ;
 
         return $this->db()->select($sql, $data);
+    }
+
+    public function selectCategoriesByPerson($gibbonPersonID, $context = 'Query')
+    {
+        $data = ['gibbonPersonID' => $gibbonPersonID, 'context' => $context];
+        $sql = "SELECT DISTINCT category FROM queryBuilderQuery WHERE type='School' OR type='gibbonedu.com' OR (type='Personal' AND gibbonPersonID=:gibbonPersonID) AND context=:context ORDER BY category";
+
+        return $this->db()->select($sql, $data);
+    }
+    
+    public function getQueryByPerson($queryBuilderQueryID, $gibbonPersonID, $editing = false)
+    {
+        $data = ['queryBuilderQueryID' => $queryBuilderQueryID, 'gibbonPersonID' => $gibbonPersonID];
+        $sql = "SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID ";
+
+        if ($editing) {
+            $sql .= "AND NOT type='gibbonedu.com' AND (type='School' OR (type='Personal' AND gibbonPersonID=:gibbonPersonID) )";
+        } else {
+            $sql .= "AND (type='gibbonedu.com' OR type='School' OR (type='Personal' AND gibbonPersonID=:gibbonPersonID) )";
+        }
+
+        return $this->db()->selectOne($sql, $data);
     }
 
     public function getIsQueryAccessible($queryBuilderQueryID, $gibbonPersonID)
