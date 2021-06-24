@@ -97,7 +97,7 @@ if (isModuleAccessible($guid, $connection2) == false) {
     $queryGateway = $container->get(QueryGateway::class);
     $criteria = $queryGateway->newQueryCriteria(true)
         ->searchBy($queryGateway->getSearchableColumns(), $search)
-        ->sortBy(['category', 'gibbonPersonID', 'name'])
+        ->sortBy(['favouriteOrder', 'category', 'gibbonPersonID', 'name'])
         ->pageSize(100)
         ->fromArray($_POST);
 
@@ -141,7 +141,10 @@ if (isModuleAccessible($guid, $connection2) == false) {
             return !is_null($query['queryID'])? 'gibbonedu.com' : $query['type'];
         });
     $table->addColumn('category', __('Category'));
-    $table->addColumn('name', __('Name'));
+    $table->addColumn('name', __('Name'))
+        ->format(function ($query) use ($session) {
+            return $query['name'] . ($query['favouriteOrder'] == 0 ? '<img class="w-4 h-4 ml-2 opacity-50" src="'.$session->get('absoluteURL').'/modules/Query Builder/img/like_on.png" title="'.__('Favourite').'">' : '');
+        });
     $table->addColumn('active', __('Active'))
           ->format(Format::using('yesNo', 'active'));
 

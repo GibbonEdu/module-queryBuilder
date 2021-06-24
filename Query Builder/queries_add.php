@@ -63,20 +63,20 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_add.
     ];
     $row = $form->addRow();
         $row->addLabel('type', __('Type'));
-        $row->addSelect('type')->fromArray($types)->isRequired();
+        $row->addSelect('type')->fromArray($types)->required();
 
     $row = $form->addRow();
         $row->addLabel('name', __('Name'));
-        $row->addTextField('name')->maxLength(255)->isRequired();
+        $row->addTextField('name')->maxLength(255)->required();
 
     $categories = $queryGateway->selectCategoriesByPerson($session->get('gibbonPersonID'))->fetchAll(\PDO::FETCH_COLUMN, 0);
     $row = $form->addRow();
         $row->addLabel('category', __('Category'));
-        $row->addTextField('category')->isRequired()->maxLength(100)->autocomplete($categories);
+        $row->addTextField('category')->required()->maxLength(100)->autocomplete($categories);
 
     $row = $form->addRow();
         $row->addLabel('active', __('Active'));
-        $row->addYesNo('active')->isRequired();
+        $row->addYesNo('active')->required();
 
     $actions = $queryGateway->selectActionListByPerson($session->get('gibbonPersonID'));
     $row = $form->addRow();
@@ -92,7 +92,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_add.
         $col->addCodeEditor('query')
             ->setMode('mysql')
             ->autocomplete(getAutocompletions($pdo))
-            ->isRequired();
+            ->required();
 
     $bindValues = new BindValues($form->getFactory(), 'bindValues', [], $session);
     $form->addRow()->addElement($bindValues);

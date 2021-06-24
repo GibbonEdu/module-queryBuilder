@@ -57,6 +57,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_dupl
         return;
     }
 
+    // Prevent access to the wrong context
+    if ($values['context'] == 'Command') {
+        $page->addError(__('You do not have access to this action.'));
+        return;
+    }
+
     // Check for specific access to this query
     if (!empty($values['actionName']) || !empty($values['moduleName'])) {
         if (empty($queryGateway->getIsQueryAccessible($queryBuilderQueryID, $session->get('gibbonPersonID')))) {
@@ -71,7 +77,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_dupl
 
     $row = $form->addRow();
         $row->addLabel('name', __('New Name'));
-        $row->addTextField('name')->maxLength(255)->isRequired()->loadFrom($values);
+        $row->addTextField('name')->maxLength(255)->required()->loadFrom($values);
 
     $types = [
         'Personal' => __('Personal'),
@@ -79,7 +85,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_dupl
     ];
     $row = $form->addRow();
         $row->addLabel('type', __('Type'));
-        $row->addSelect('type')->fromArray($types)->isRequired();
+        $row->addSelect('type')->fromArray($types)->required();
 
     $row = $form->addRow();
         $row->addFooter();

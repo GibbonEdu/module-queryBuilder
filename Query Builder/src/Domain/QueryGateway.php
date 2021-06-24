@@ -48,7 +48,7 @@ class QueryGateway extends QueryableGateway
         $query = $this
             ->newQuery()
             ->cols([
-                'queryBuilderQueryID', 'name', 'type', 'category', 'active', 'gibbonPersonID', 'queryID', 'queryBuilderQuery.actionName', 'queryBuilderQuery.moduleName', 'permission.permissionID'
+                'queryBuilderQuery.queryBuilderQueryID', 'name', 'type', 'category', 'active', 'queryBuilderQuery.gibbonPersonID', 'queryID', 'queryBuilderQuery.actionName', 'queryBuilderQuery.moduleName', 'permission.permissionID', '(CASE WHEN queryBuilderFavourite.queryBuilderFavouriteID IS NOT NULL THEN 0 ELSE 1 END) as favouriteOrder',
             ])
             ->from($this->getTableName())
             ->joinSubSelect(                     
@@ -61,10 +61,11 @@ class QueryGateway extends QueryableGateway
                 'permission',                   
                 "(permission.actionName=queryBuilderQuery.actionName OR permission.actionName LIKE CONCAT(queryBuilderQuery.actionName, '_%')) AND permission.moduleName=queryBuilderQuery.moduleName AND FIND_IN_SET(permission.gibbonRoleID, :gibbonRoleIDAll)"
             )
+            ->leftJoin('queryBuilderFavourite', '(queryBuilderFavourite.queryBuilderQueryID=queryBuilderQuery.queryBuilderQueryID AND queryBuilderFavourite.gibbonPersonID=:gibbonPersonID)')
             ->where('queryBuilderQuery.context=:context')
             ->bindValue('context', $context)
             ->where(function($query) {
-                $query->where("(type='Personal' AND gibbonPersonID=:gibbonPersonID)")
+                $query->where("(type='Personal' AND queryBuilderQuery.gibbonPersonID=:gibbonPersonID)")
                     ->orWhere("type='School'")
                     ->orWhere("type='gibbonedu.com'");
             })

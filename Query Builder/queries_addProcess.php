@@ -37,6 +37,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_add.
     list($moduleName, $actionName) = !empty($_POST['moduleActionName']) ? explode(':', $_POST['moduleActionName']) : [null, null];
 
     $data = [
+        'context'     => 'Query',
         'type'        => $_POST['type'] ?? '',
         'name'        => $_POST['name'] ?? '',
         'category'    => $_POST['category'] ?? '',

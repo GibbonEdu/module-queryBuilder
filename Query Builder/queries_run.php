@@ -23,6 +23,7 @@ use Gibbon\Tables\DataTable;
 use Gibbon\Domain\User\RoleGateway;
 use Gibbon\Forms\DatabaseFormFactory;
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
+use Gibbon\Module\QueryBuilder\Domain\FavouriteGateway;
 
 // Module includes
 include __DIR__.'/moduleFunctions.php';
@@ -40,6 +41,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
         ->add(__('Run Query'));
 
     $queryGateway = $container->get(QueryGateway::class);
+    $favouriteGateway = $container->get(FavouriteGateway::class);
     $highestAction = getHighestGroupedAction($guid, $_GET['q'], $connection2);
 
     $queryBuilderQueryID =$_GET['queryBuilderQueryID'] ?? '';
@@ -49,7 +51,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
 
     if (isset($_GET['return'])) {
         $illegals = isset($_GET['illegals'])? urldecode($_GET['illegals']) : '';
-        $page->addReturns([
+        $page->return->addReturns([
             'error3' => __('Your query contains the following illegal term(s), and so cannot be run:', 'Query Builder').' <b>'.substr($illegals, 0, -2).'</b>.'
         ]);
     }
@@ -67,6 +69,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
         return;
     }
 
+    // Prevent access to the wrong context
+    if ($values['context'] == 'Command') {
+        $page->addError(__('You do not have access to this action.'));
+        return;
+    }
+
     // Check for specific access to this query
     if (!empty($values['actionName']) || !empty($values['moduleName'])) {
         if (empty($queryGateway->getIsQueryAccessible($queryBuilderQueryID, $session->get('gibbonPersonID')))) {
@@ -77,11 +85,21 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
    
     if ($search != '') {
         echo "<div class='linkTop'>";
-        echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries.php&search=$search'>".__($guid, 'Back to Search Results').'</a>';
+        echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries.php&search=$search'>".__('Back to Search Results').'</a>';
         echo '</div>';
     }
 
     $table = DataTable::createDetails('query');
+
+    $favourite = $favouriteGateway->selectBy(['queryBuilderQueryID' => $queryBuilderQueryID, 'gibbonPersonID' => $session->get('gibbonPersonID')])->fetch();
+    $iconPath = $session->get('absoluteURL').'/modules/Query Builder/img/';
+
+    $table->addHeaderAction('favourite', empty($favourite) ? __('Favourite') : __('Unfavourite'))
+        ->setURL('/modules/Query Builder/queries_favouriteProcess.php')
+        ->setIcon(empty($favourite) ? $iconPath . 'like_on.png' : $iconPath . 'like_off.png')
+        ->addParam('search', $search)
+        ->addParam('queryBuilderQueryID', $queryBuilderQueryID)
+        ->displayLabel();
 
     if ($highestAction == 'Manage Queries_viewEditAll') {
         $table->addHeaderAction('help', __('Help'))
@@ -89,7 +107,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
             ->setIcon('help')
             ->addClass('underline')
             ->displayLabel()
-            ->modalWindow();
+            ->modalWindow()
+            ->prepend(" | ");
 
         if ($values['type'] != 'gibbonedu.com') {
             $table->addHeaderAction('edit', __('Edit Query'))
@@ -152,7 +171,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
             $col->addCodeEditor('query')
                 ->setMode('mysql')
                 ->autocomplete(getAutocompletions($pdo))
-                ->isRequired()
+                ->required()
                 ->setValue($queryText);
     } else {
         $form->addHiddenValue('query', $values['query']);

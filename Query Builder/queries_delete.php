@@ -37,8 +37,15 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_dele
     }
 
     // Validate this user has access to this query
-    if (empty($queryGateway->getQueryByPerson($queryBuilderQueryID, $session->get('gibbonPersonID'), true))) {
+    $values = $queryGateway->getQueryByPerson($queryBuilderQueryID, $session->get('gibbonPersonID'), true);
+    if (empty($values)) {
         $page->addError(__('The selected record does not exist, or you do not have access to it.'));
+        return;
+    }
+
+    // Prevent access to the wrong context
+    if ($values['context'] == 'Command') {
+        $page->addError(__('You do not have access to this action.'));
         return;
     }
 

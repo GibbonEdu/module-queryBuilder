@@ -51,6 +51,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_dupl
 
     // Validate Inputs
     $data = [
+        'context'        => 'Query',
         'name'           => $_POST['name'] ?? '',
         'type'           => $_POST['type'] ?? '',
         'category'       => $values['category'],

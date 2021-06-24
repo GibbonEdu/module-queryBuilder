@@ -51,6 +51,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit
         return;
     }
 
+    // Prevent access to the wrong context
+    if ($values['context'] == 'Command') {
+        $page->addError(__('You do not have access to this action.'));
+        return;
+    }
+
     // Check for specific access to this query
     if (!empty($values['actionName']) || !empty($values['moduleName'])) {
         if (empty($queryGateway->getIsQueryAccessible($queryBuilderQueryID, $session->get('gibbonPersonID')))) {
@@ -89,20 +95,20 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit
 
     $row = $form->addRow();
         $row->addLabel('type', __('Type'));
-        $row->addTextField('type')->isRequired()->readonly();
+        $row->addTextField('type')->required()->readonly();
 
     $row = $form->addRow();
         $row->addLabel('name', __('Name'));
-        $row->addTextField('name')->maxLength(255)->isRequired();
+        $row->addTextField('name')->maxLength(255)->required();
 
     $categories = $queryGateway->selectCategoriesByPerson($session->get('gibbonPersonID'))->fetchAll(\PDO::FETCH_COLUMN, 0);
     $row = $form->addRow();
         $row->addLabel('category', __('Category'));
-        $row->addTextField('category')->isRequired()->maxLength(100)->autocomplete($categories);
+        $row->addTextField('category')->required()->maxLength(100)->autocomplete($categories);
 
     $row = $form->addRow();
         $row->addLabel('active', __('Active'));
-        $row->addYesNo('active')->isRequired();
+        $row->addYesNo('active')->required();
 
     $actions = $queryGateway->selectActionListByPerson($session->get('gibbonPersonID'));
     $row = $form->addRow();
@@ -118,7 +124,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit
         $col->addCodeEditor('query')
             ->setMode('mysql')
             ->autocomplete(getAutocompletions($pdo))
-            ->isRequired();
+            ->required();
 
     $bindValues = new BindValues($form->getFactory(), 'bindValues', $values, $session);
     $form->addRow()->addElement($bindValues);
