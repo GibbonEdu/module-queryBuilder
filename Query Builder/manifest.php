@@ -30,10 +30,31 @@ $author = 'Ross Parker';
 $url = 'http://rossparker.org';
 
 //Module tables & gibbonSettings entries
-$moduleTables[0] = "CREATE TABLE `queryBuilderQuery` (`queryBuilderQueryID` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT, `type` enum('gibbonedu.com','Personal','School') NOT NULL DEFAULT 'gibbonedu.com', `scope` varchar(30) NOT NULL DEFAULT 'Core', `name` varchar(255) NOT NULL, `category` varchar(50) NOT NULL, `moduleName` VARCHAR(30) NULL DEFAULT NULL, `actionName` VARCHAR(50) NULL DEFAULT NULL, `description` text NOT NULL,  `query` text NOT NULL, `bindValues` TEXT NULL DEFAULT NULL, `active` enum('Y','N') NOT NULL DEFAULT 'Y',  `queryID` int(10) unsigned zerofill DEFAULT NULL COMMENT 'If based on a gibbonedu.org query.',  `gibbonPersonID` int(10) unsigned zerofill DEFAULT NULL,  PRIMARY KEY (`queryBuilderQueryID`)) ENGINE=InnoDB DEFAULT CHARSET=utf8";
+$moduleTables[] = "CREATE TABLE `queryBuilderQuery` (
+    `queryBuilderQueryID` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+    `type` ENUM('gibbonedu.com','Personal','School') NOT NULL DEFAULT 'gibbonedu.com',
+    `context` ENUM('Query','Command') NOT NULL DEFAULT 'Query',
+    `scope` VARCHAR(30) NOT NULL DEFAULT 'Core', `name` VARCHAR(255) NOT NULL,
+    `category` VARCHAR(50) NOT NULL, `moduleName` VARCHAR(30) NULL DEFAULT NULL,
+    `actionName` VARCHAR(50) NULL DEFAULT NULL,
+    `description` TEXT NOT NULL, 
+    `query` TEXT NOT NULL, `bindValues` TEXT NULL DEFAULT NULL,
+    `active` ENUM('Y','N') NOT NULL DEFAULT 'Y', 
+    `queryID` INT(10) UNSIGNED ZEROFILL DEFAULT NULL COMMENT 'If based on a gibbonedu.org query.', 
+    `gibbonPersonID` int(10) UNSIGNED ZEROFILL DEFAULT NULL, 
+    PRIMARY KEY (`queryBuilderQueryID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8";
+
+$moduleTables[] = "CREATE TABLE `queryBuilderFavourite` (
+    `queryBuilderFavouriteID` INT(12) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
+    `queryBuilderQueryID` INT(10) UNSIGNED ZEROFILL NOT NULL,
+    `gibbonPersonID` INT(10) UNSIGNED ZEROFILL NOT NULL,
+    PRIMARY KEY (`queryBuilderFavouriteID`),
+    UNIQUE KEY `favourite` (`queryBuilderQueryID`, `gibbonPersonID`)
+) ENGINE = InnoDB DEFAULT CHARSET=utf8;";
 
 //gibbonSettings entries
-$gibbonSetting[0] = "INSERT INTO `gibbonSetting` (`scope` ,`name` ,`nameDisplay` ,`description` ,`value`) VALUES ('Query Builder', 'exportDefaultFileType', 'Default Export File Type', '', 'Excel2007');";
+$gibbonSetting[] = "INSERT INTO `gibbonSetting` (`scope` ,`name` ,`nameDisplay` ,`description` ,`value`) VALUES ('Query Builder', 'exportDefaultFileType', 'Default Export File Type', '', 'Excel2007');";
 
 //Action rows
 $actionRows[] = [

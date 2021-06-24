@@ -40,15 +40,15 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands.php
     $queryGateway = $container->get(QueryGateway::class);
     $criteria = $queryGateway->newQueryCriteria(true)
         ->searchBy($queryGateway->getSearchableColumns(), $search)
-        ->sortBy(['category', 'gibbonPersonID', 'name'])
+        ->sortBy(['favouriteOrder', 'category', 'gibbonPersonID', 'name'])
         ->pageSize(100)
         ->fromPOST();
 
-    $form = Form::create('search', $_SESSION[$guid]['absoluteURL'].'/index.php', 'get');
+    $form = Form::create('search', $session->get('absoluteURL').'/index.php', 'get');
     $form->setTitle(__('Search'));
     $form->setClass('noIntBorder fullWidth');
 
-    $form->addHiddenValue('q', '/modules/'.$_SESSION[$guid]['module'].'/queries.php');
+    $form->addHiddenValue('q', '/modules/'.$session->get('module').'/commands.php');
 
     $row = $form->addRow();
         $row->addLabel('search', __('Search For'))->description(__m('Command name and category.'));
@@ -60,14 +60,15 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands.php
     echo $form->getOutput();
 
     // QUERY
-    $queries = $queryGateway->queryQueries($criteria, $_SESSION[$guid]['gibbonPersonID']);
+    $queries = $queryGateway->queryQueries($criteria, $session->get('gibbonPersonID'), 'Command');
 
     $table = DataTable::createPaginated('queriesManage', $criteria);
-    $table->setTitle(__('Queries'));
+    $table->setTitle(__('Commands'));
+    $table->setDescription(__('Commands are SQL statements that can be run on your database. Unlike queries, commands are actions that can directly change the data in your database, such as updating and deleting records. <b>Be careful running commands and backup your database before making wide-scale changes</b>.'));
 
-    if ($highestAction == 'Manage Queries_viewEditAll') {
+    if ($highestAction == 'Manage Commands_viewEditAll') {
         $table->addHeaderAction('add', __('Add'))
-            ->setURL('/modules/Query Builder/queries_add.php')
+            ->setURL('/modules/Query Builder/commands_add.php')
             ->addParam('search', $criteria->getSearchText(true))
             ->addParam('sidebar', 'false')
             ->displayLabel();
@@ -84,7 +85,10 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands.php
             return !is_null($query['queryID'])? 'gibbonedu.com' : $query['type'];
         });
     $table->addColumn('category', __('Category'));
-    $table->addColumn('name', __('Name'));
+    $table->addColumn('name', __('Name'))
+        ->format(function ($query) use ($session) {
+            return $query['name'] . ($query['favouriteOrder'] == 0 ? '<img class="w-4 h-4 ml-2 opacity-50" src="'.$session->get('absoluteURL').'/modules/Query Builder/img/like_on.png" title="'.__('Favourite').'">' : '');
+        });
     $table->addColumn('active', __('Active'))
           ->format(Format::using('yesNo', 'active'));
 
@@ -92,25 +96,25 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands.php
     $table->addActionColumn()
         ->addParam('queryBuilderQueryID')
         ->addParam('search', $criteria->getSearchText(true))
-        ->format(function ($query, $actions) use ($highestAction, $guid) {
+        ->format(function ($query, $actions) use ($highestAction, $session) {
 
-            if ($highestAction == 'Manage Queries_viewEditAll') {
-                if (($query['type'] == 'Personal' && $query['gibbonPersonID'] == $_SESSION[$guid]['gibbonPersonID']) || $query['type'] == 'School') {
+            if ($highestAction == 'Manage Commands_viewEditAll') {
+                if (($query['type'] == 'Personal' && $query['gibbonPersonID'] == $session->get('gibbonPersonID')) || $query['type'] == 'School') {
                     $actions->addAction('edit', __('Edit Record'))
-                        ->setURL('/modules/Query Builder/queries_edit.php')
+                        ->setURL('/modules/Query Builder/commands_edit.php')
                         ->addParam('sidebar', 'false');
 
                     $actions->addAction('delete', __('Delete Record'))
-                        ->setURL('/modules/Query Builder/queries_delete.php');
+                        ->setURL('/modules/Query Builder/commands_delete.php');
                 }
 
                 $actions->addAction('duplicate', __('Duplicate'))
-                    ->setURL('/modules/Query Builder/queries_duplicate.php')
+                    ->setURL('/modules/Query Builder/commands_duplicate.php')
                     ->setIcon('copy');
             }
 
-            $actions->addAction('run', __('Run Query'))
-                ->setURL('/modules/Query Builder/queries_run.php')
+            $actions->addAction('run', __('Run Command'))
+                ->setURL('/modules/Query Builder/commands_run.php')
                 ->addParam('sidebar', 'false')
                 ->setIcon('run');
         });
