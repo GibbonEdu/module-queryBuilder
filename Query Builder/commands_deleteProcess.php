@@ -25,10 +25,10 @@ include '../../gibbon.php';
 $queryBuilderQueryID = $_GET['queryBuilderQueryID'] ?? '';
 $search = $_GET['search'] ?? '';
 
-$URL = $session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries_delete.php&queryBuilderQueryID=$queryBuilderQueryID&search=$search";
-$URLDelete = $session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries.php&search=$search";
+$URL = $session->get('absoluteURL')."/index.php?q=/modules/Query Builder/commands_delete.php&queryBuilderQueryID=$queryBuilderQueryID&search=$search";
+$URLDelete = $session->get('absoluteURL')."/index.php?q=/modules/Query Builder/commands.php&search=$search";
 
-if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_delete.php') == false) {
+if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_delete.php') == false) {
     // Access denied
     $URL = $URL.'&return=error0';
     header("Location: {$URL}");

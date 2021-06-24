@@ -356,3 +356,16 @@ $sql[$count][1] = "
 $sql[$count][0] = '1.13.09';
 $sql[$count][1] = "
 ";
+
+//v2.0.00
+++$count;
+$sql[$count][0] = '2.0.00';
+$sql[$count][1] = "
+INSERT INTO `gibbonAction` (`gibbonModuleID`, `name`, `precedence`, `category`, `description`, `URLList`, `entryURL`, `defaultPermissionAdmin`, `defaultPermissionTeacher`, `defaultPermissionStudent`, `defaultPermissionParent`, `defaultPermissionSupport`, `categoryPermissionStaff`, `categoryPermissionStudent`, `categoryPermissionParent`, `categoryPermissionOther`) VALUES ((SELECT gibbonModuleID FROM gibbonModule WHERE name='Query Builder'), 'Manage Commands_run', '0', 'Queries', 'Allows a user to run commands but not add or edit them.', 'commands.php, commands_run.php', 'commands.php', 'N', 'N', 'N', 'N', 'N', 'Y', 'N', 'N', 'N');end
+INSERT INTO `gibbonAction` (`gibbonModuleID`, `name`, `precedence`, `category`, `description`, `URLList`, `entryURL`, `defaultPermissionAdmin`, `defaultPermissionTeacher`, `defaultPermissionStudent`, `defaultPermissionParent`, `defaultPermissionSupport`, `categoryPermissionStaff`, `categoryPermissionStudent`, `categoryPermissionParent`, `categoryPermissionOther`) VALUES ((SELECT gibbonModuleID FROM gibbonModule WHERE name='Query Builder'), 'Manage Commands_viewEditAll', '1', 'Queries', 'Allows a user to run and edit all commands.', 'commands.php, commands_add.php, commands_edit.php, commands_duplicate.php, commands_delete.php, commands_run.php', 'commands.php', 'Y', 'N', 'N', 'N', 'N', 'Y', 'N', 'N', 'N');end
+INSERT INTO `gibbonPermission` (`gibbonRoleID` ,`gibbonActionID`) VALUES (001, (SELECT gibbonActionID FROM gibbonAction JOIN gibbonModule ON (gibbonAction.gibbonModuleID=gibbonModule.gibbonModuleID) WHERE gibbonModule.name='Query Builder' AND gibbonAction.name='Manage Commands_viewEditAll'));end
+ALTER TABLE `queryBuilderQuery` ADD `context` ENUM('Query','Command') NOT NULL DEFAULT 'Query' AFTER `type`;end
+CREATE TABLE `queryBuilderFavourite` (`queryBuilderFavouriteID` INT(12) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT, `queryBuilderQueryID` INT(10) UNSIGNED ZEROFILL NOT NULL, `gibbonPersonID` INT(10) UNSIGNED ZEROFILL NOT NULL, PRIMARY KEY (`queryBuilderFavouriteID`), UNIQUE KEY `favourite` (`queryBuilderQueryID`, `gibbonPersonID`)) ENGINE = InnoDB DEFAULT CHARSET=utf8;end
+UPDATE gibbonAction SET category='Settings' WHERE name='Manage Settings' AND gibbonModuleID=(SELECT gibbonModuleID FROM gibbonModule WHERE name='Query Builder');end
+
+";

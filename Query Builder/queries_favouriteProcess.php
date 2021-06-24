@@ -25,10 +25,9 @@ include '../../gibbon.php';
 $queryBuilderQueryID = $_GET['queryBuilderQueryID'] ?? '';
 $search = $_GET['search'] ?? '';
 
-$URL = $session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries_delete.php&queryBuilderQueryID=$queryBuilderQueryID&search=$search";
-$URLDelete = $session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries.php&search=$search";
+$URL = $session->get('absoluteURL').'/index.php?q=/modules/Query Builder/queries_run.php&queryBuilderQueryID='.$queryBuilderQueryID."&search=$search&sidebar=false";
 
-if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_delete.php') == false) {
+if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.php') == false) {
     // Access denied
     $URL = $URL.'&return=error0';
     header("Location: {$URL}");
@@ -36,32 +35,33 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_dele
     // Proceed!
     $queryGateway = $container->get(QueryGateway::class);
     $favouriteGateway = $container->get(FavouriteGateway::class);
-
+    
     // Validate the required values are present
     if (empty($queryBuilderQueryID)) {
         $URL = $URL.'&return=error1';
         header("Location: {$URL}");
         exit;
-    } 
-
-    // Validate this user has access to this query
-    if (empty($queryGateway->getQueryByPerson($queryBuilderQueryID, $session->get('gibbonPersonID'), true))) {
-        $URL = $URL.'&return=error2';
-        header("Location: {$URL}");
-        exit;
     }
 
-    // Delete record
-    $deleted = $queryGateway->delete($queryBuilderQueryID);
-
-    if (!$deleted) {
-        $URL = $URL.'&return=error2';
-        header("Location: {$URL}");
-        exit;
+    $values = $queryGateway->getByID($queryBuilderQueryID);
+    if ($values['context'] == 'Command') {
+        $URL = $session->get('absoluteURL').'/index.php?q=/modules/Query Builder/commands_run.php&queryBuilderQueryID='.$queryBuilderQueryID."&search=$search&sidebar=false";
     }
 
-    $favouriteGateway->deleteWhere(['queryBuilderQueryID' => $queryBuilderQueryID]);
+    $data = [
+        'queryBuilderQueryID' => $queryBuilderQueryID,
+        'gibbonPersonID' => $session->get('gibbonPersonID')
+    ];
 
-    $URLDelete = $URLDelete.'&return=success0';
-    header("Location: {$URLDelete}");
+    $favourite = $favouriteGateway->selectBy($data)->fetch();
+
+    // Delete if existing, else insert
+    if (!empty($favourite)) {
+        $favouriteGateway->delete($favourite['queryBuilderFavouriteID']);
+    } else {
+        $favouriteGateway->insert($data);
+    }
+
+    $URL = $URL.'&return=success0';
+    header("Location: {$URL}");
 }

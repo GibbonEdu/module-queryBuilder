@@ -24,9 +24,9 @@ include '../../gibbon.php';
 $queryBuilderQueryID = $_GET['queryBuilderQueryID'] ?? '';
 $search = $_GET['search'] ?? '';
 
-$URL = $session->get('absoluteURL').'/index.php?q=/modules/'.getModuleName($_POST['address']).'/queries_duplicate.php&queryBuilderQueryID='.$queryBuilderQueryID."&search=$search";
+$URL = $session->get('absoluteURL').'/index.php?q=/modules/'.getModuleName($_POST['address']).'/commands_duplicate.php&queryBuilderQueryID='.$queryBuilderQueryID."&search=$search";
 
-if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_duplicate.php') == false) {
+if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_duplicate.php') == false) {
     // Access denied
     $URL = $URL.'&return=error0';
     header("Location: {$URL}");
@@ -51,7 +51,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_dupl
 
     // Validate Inputs
     $data = [
-        'context'        => 'Query',
+        'context'        => 'Command',
         'name'           => $_POST['name'] ?? '',
         'type'           => $_POST['type'] ?? '',
         'category'       => $values['category'],

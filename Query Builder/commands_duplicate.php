@@ -20,14 +20,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 use Gibbon\Forms\Form;
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 
-if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_duplicate.php') == false) {
+if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_duplicate.php') == false) {
     // Access denied
     $page->addError(__('You do not have access to this action.'));
 } else {
     // Proceed!
     $page->breadcrumbs
-        ->add(__('Manage Queries'), 'queries.php')
-        ->add(__('Duplicate Query'));
+        ->add(__('Manage Commands'), 'commands.php')
+        ->add(__('Duplicate Command'));
 
     $queryGateway = $container->get(QueryGateway::class);
 
@@ -35,12 +35,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_dupl
     $search = $_GET['search'] ?? '';
 
     if (isset($_GET['editID'])) {
-        $page->return->setEditLink($session->get('absoluteURL').'/index.php?q=/modules/Query Builder/queries_edit.php&queryBuilderQueryID='.$_GET['editID'].'&search='.$_GET['search'].'&sidebar=false');
+        $page->return->setEditLink($session->get('absoluteURL').'/index.php?q=/modules/Query Builder/commands_edit.php&queryBuilderQueryID='.$_GET['editID'].'&search='.$_GET['search'].'&sidebar=false');
     }
 
     if ($search != '') {
         echo "<div class='linkTop'>";
-        echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries.php&search=$search'>".__('Back to Search Results').'</a>';
+        echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Query Builder/commands.php&search=$search'>".__('Back to Search Results').'</a>';
         echo '</div>';
     }
     
@@ -58,7 +58,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_dupl
     }
 
     // Prevent access to the wrong context
-    if ($values['context'] == 'Command') {
+    if ($values['context'] == 'Query') {
         $page->addError(__('You do not have access to this action.'));
         return;
     }
@@ -71,7 +71,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_dupl
         }
     }
 
-    $form = Form::create('queryBuilder', $session->get('absoluteURL').'/modules/'.$session->get('module').'/queries_duplicateProcess.php?queryBuilderQueryID='.$queryBuilderQueryID.'&search='.$search);
+    $form = Form::create('queryBuilder', $session->get('absoluteURL').'/modules/'.$session->get('module').'/commands_duplicateProcess.php?queryBuilderQueryID='.$queryBuilderQueryID.'&search='.$search);
 
     $form->addHiddenValue('address', $session->get('address'));
 

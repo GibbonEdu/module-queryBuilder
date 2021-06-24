@@ -23,9 +23,9 @@ include '../../gibbon.php';
 
 $search = $_GET['search'] ?? '';
 
-$URL = $session->get('absoluteURL').'/index.php?q=/modules/'.getModuleName($_POST['address'])."/queries_add.php&sidebar=false&search=$search";
+$URL = $session->get('absoluteURL').'/index.php?q=/modules/'.getModuleName($_POST['address'])."/commands_add.php&sidebar=false&search=$search";
 
-if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_add.php') == false) {
+if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_add.php') == false) {
     // Fail 0
     $URL = $URL.'&return=error0';
     header("Location: {$URL}");
@@ -37,7 +37,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_add.
     list($moduleName, $actionName) = !empty($_POST['moduleActionName']) ? explode(':', $_POST['moduleActionName']) : [null, null];
 
     $data = [
-        'context'     => 'Query',
+        'context'     => 'Command',
         'type'        => $_POST['type'] ?? '',
         'name'        => $_POST['name'] ?? '',
         'category'    => $_POST['category'] ?? '',

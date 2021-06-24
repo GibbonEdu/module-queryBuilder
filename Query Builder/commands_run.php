@@ -31,14 +31,14 @@ include __DIR__.'/moduleFunctions.php';
 // Increase memory limit
 ini_set('memory_limit', '512M');
 
-if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.php') == false) {
+if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run.php') == false) {
     // Access denied
     $page->addError(__('You do not have access to this action.'));
 } else {
     // Proceed!
     $page->breadcrumbs
-        ->add(__('Manage Queries'), 'queries.php')
-        ->add(__('Run Query'));
+        ->add(__('Manage Commands'), 'commands.php')
+        ->add(__('Run Command'));
 
     $queryGateway = $container->get(QueryGateway::class);
     $favouriteGateway = $container->get(FavouriteGateway::class);
@@ -70,7 +70,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
     }
 
     // Prevent access to the wrong context
-    if ($values['context'] == 'Command') {
+    if ($values['context'] == 'Query') {
         $page->addError(__('You do not have access to this action.'));
         return;
     }
@@ -85,15 +85,17 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
    
     if ($search != '') {
         echo "<div class='linkTop'>";
-        echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries.php&search=$search'>".__('Back to Search Results').'</a>';
+        echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Query Builder/commands.php&search=$search'>".__($guid, 'Back to Search Results').'</a>';
         echo '</div>';
     }
 
     $table = DataTable::createDetails('query');
 
+    $table->setDescription(Format::alert(__('Commands are SQL statements that can update or delete records in your database. Be careful when creating and editing commands, as these queries can make destructive changes to your data. <b>Always backup your database before working with commands</b>.'), 'warning'));
+    
     $favourite = $favouriteGateway->selectBy(['queryBuilderQueryID' => $queryBuilderQueryID, 'gibbonPersonID' => $session->get('gibbonPersonID')])->fetch();
     $iconPath = $session->get('absoluteURL').'/modules/Query Builder/img/';
-
+    
     $table->addHeaderAction('favourite', empty($favourite) ? __('Favourite') : __('Unfavourite'))
         ->setURL('/modules/Query Builder/queries_favouriteProcess.php')
         ->setIcon(empty($favourite) ? $iconPath . 'like_on.png' : $iconPath . 'like_off.png')
@@ -101,7 +103,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
         ->addParam('queryBuilderQueryID', $queryBuilderQueryID)
         ->displayLabel();
 
-    if ($highestAction == 'Manage Queries_viewEditAll') {
+    if ($highestAction == 'Manage Commands_viewEditAll') {
         $table->addHeaderAction('help', __('Help'))
             ->setURL('/modules/Query Builder/queries_help_full.php')
             ->setIcon('help')
@@ -111,8 +113,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
             ->prepend(" | ");
 
         if ($values['type'] != 'gibbonedu.com') {
-            $table->addHeaderAction('edit', __('Edit Query'))
-                ->setURL('/modules/Query Builder/queries_edit.php')
+            $table->addHeaderAction('edit', __('Edit Command'))
+                ->setURL('/modules/Query Builder/commands_edit.php')
                 ->addParam('search', $search)
                 ->addParam('queryBuilderQueryID', $queryBuilderQueryID)
                 ->addParam('sidebar', 'false')
@@ -158,16 +160,16 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
     echo $table->render([$values]);
 
     // FORM
-    $form = Form::create('queryBuilder', $session->get('absoluteURL').'/index.php?q=/modules/'.$session->get('module').'/queries_run.php&queryBuilderQueryID='.$queryBuilderQueryID.'&sidebar=false&search='.$search);
+    $form = Form::create('queryBuilder', $session->get('absoluteURL').'/index.php?q=/modules/'.$session->get('module').'/commands_run.php&queryBuilderQueryID='.$queryBuilderQueryID.'&sidebar=false&search='.$search);
     $form->setFactory(DatabaseFormFactory::create($pdo));
 
     $form->addHiddenValue('address', $session->get('address'));
 
-    if ($highestAction == 'Manage Queries_viewEditAll') {
+    if ($highestAction == 'Manage Commands_viewEditAll') {
         $queryText = !empty($query)? $query : $values['query'];
 
         $col = $form->addRow()->addColumn();
-            $col->addLabel('query', __('Query'));
+            $col->addLabel('query', __('Command'));
             $col->addCodeEditor('query')
                 ->setMode('mysql')
                 ->autocomplete(getAutocompletions($pdo))
@@ -208,42 +210,38 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
     $row = $form->addRow();
         $row->addFooter();
         $col = $row->addColumn()->addClass('inline right');
-        if ($highestAction == 'Manage Queries_viewEditAll' && (($values['type'] == 'Personal' and $values['gibbonPersonID'] == $session->get('gibbonPersonID')) or $values['type'] == 'School')) {
-            $col->addCheckbox('save')->description(__('Save Query?'))->setValue('Y')->checked($save)->wrap('<span class="displayInlineBlock">', '</span>&nbsp;&nbsp;');
+        if ($highestAction == 'Manage Commands_viewEditAll' && (($values['type'] == 'Personal' and $values['gibbonPersonID'] == $session->get('gibbonPersonID')) or $values['type'] == 'School')) {
+            $col->addCheckbox('save')->description(__('Save Command?'))->setValue('Y')->checked($save)->wrap('<span class="displayInlineBlock">', '</span>&nbsp;&nbsp;');
         } else {
             $col->addContent('');
         }
-        $col->addSubmit(__('Run Query'));
+        $col->addSubmit(__('Run Command'));
 
     echo $form->getOutput();
 
     //PROCESS QUERY
     if (!empty($query)) {
         echo '<h3>';
-        echo __('Query Results');
+        echo __('Command Results');
         echo '</h3>';
 
         //Strip multiple whitespaces from string
         $query = preg_replace('/\s+/', ' ', $query);
 
         //Security check
-        $illegal = false;
-        $illegalList = '';
-        foreach (getIllegals() as $ill) {
-            if (preg_match('/\b('.$ill.')\b/i', $query)) {
-                $illegal = true;
-                $illegalList .= $ill.', ';
+        $illegalList = [];
+        foreach (getIllegals(true) as $illegal) {
+            if (preg_match('/\b('.$illegal.')\b/i', $query)) {
+                $illegalList[] = $illegal;
             }
         }
-        if ($illegal) {
-            echo "<div class='error'>";
-            echo __('Your query contains the following illegal term(s), and so cannot be run:').' <b>'.substr($illegalList, 0, -2).'</b>.';
-            echo '</div>';
+        if (!empty($illegalList)) {
+            echo Format::error(__('Your query contains the following illegal term(s), and so cannot be run:').' <b>'.implode(', ', $illegalList).'</b>.');
         } else {
             //Save the query
-            if ($highestAction == 'Manage Queries_viewEditAll' && $save == 'Y') {
+            if ($highestAction == 'Manage Commands_viewEditAll' && $save == 'Y') {
                 $rawQuery = $_POST['query'] ?? '';
-                $data = array('queryBuilderQueryID' => $queryBuilderQueryID, 'query' => $rawQuery);
+                $data = ['queryBuilderQueryID' => $queryBuilderQueryID, 'query' => $rawQuery];
                 $sql = "UPDATE queryBuilderQuery SET query=:query WHERE queryBuilderQueryID=:queryBuilderQueryID";
                 $pdo->update($sql, $data);
             }
@@ -264,59 +262,13 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
             }
 
             // Run the query
-            $result = $pdo->select($query, $data);
+            $result = $pdo->affectingStatement($query, $data);
 
             if (!$pdo->getQuerySuccess()) {
                 echo '<div class="error">'.__('Your request failed with the following error: ').$pdo->getErrorMessage().'</div>';
-            } else if ($result->rowCount() < 1) {
-                echo '<div class="warning">'.__('Your query has returned 0 rows.').'</div>';
             } else {
-                echo '<div class="success">'.sprintf(__('Your query has returned %1$s rows, which are displayed below.'), $result->rowCount()).'</div>';
-
-                $invalidColumns = ['password', 'passwordStrong', 'passwordStrongSalt', 'gibbonStaffContract', 'gibbonStaffApplicationForm', 'gibbonStaffApplicationFormFile'];
-
-                $table = DataTable::create('queryResults');
-                $table->getRenderer();
-
-                //Set up export header action
-                $hash = md5($query);
-                $session->set($hash, [
-                    'query' => $query,
-                    'queryData' => $data,
-                ]);
-                $table->addHeaderAction('export', __('Export'))
-                    ->setIcon('download')
-                    ->setURL('/modules/Query Builder/queries_run_export.php')
-                    ->addParam('queryBuilderQueryID', $queryBuilderQueryID)
-                    ->addParam('hash', $hash)
-                    ->directLink()
-                    ->displayLabel();
-
-                $count = 1;
-                $table->addColumn('count', '')->width('35px')->format(function($row) use (&$count) {
-                    return '<span class="subdued">'.$count++.'</span>';
-                });
-
-                for ($i = 0; $i < $result->columnCount(); ++$i) {
-                    $col = $result->getColumnMeta($i);
-                    $colName = $col['name'];
-                    if (!in_array($colName, $invalidColumns)) {
-                        $table->addColumn($colName, $colName)->format(function($row) use ($colName) {
-                            if (strlen($row[$colName]) > 50 && $colName !='image' && $colName!='image_240') {
-                                return substr($row[$colName], 0, 50).'...';
-                            } else {
-                                return $row[$colName];
-                            }
-                        });
-                    }
-                }
-
-                echo "<div style='overflow-x:auto;'>";
-                echo $table->render($result->toDataSet());
-                echo '</div>';
-            }
+                echo '<div class="success">'.__n('Your command has run successfully. 1 row was affected.', 'Your command has run successfully. {count} rows were affected.', $result).'</div>';
+            } 
         }
     }
-    
-
 }

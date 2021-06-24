@@ -20,7 +20,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 use Gibbon\Forms\Prefab\DeleteForm;
 
-if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_delete.php') == false) {
+if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_delete.php') == false) {
     // Access denied
     $page->addError(__('You do not have access to this action.'));
 } else {
@@ -44,12 +44,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_dele
     }
 
     // Prevent access to the wrong context
-    if ($values['context'] == 'Command') {
+    if ($values['context'] == 'Query') {
         $page->addError(__('You do not have access to this action.'));
         return;
     }
 
     // Let's go!
-    $form = DeleteForm::createForm($session->get('absoluteURL').'/modules/'.$session->get('module')."/queries_deleteProcess.php?queryBuilderQueryID=$queryBuilderQueryID&search=$search");
+    $form = DeleteForm::createForm($session->get('absoluteURL').'/modules/'.$session->get('module')."/commands_deleteProcess.php?queryBuilderQueryID=$queryBuilderQueryID&search=$search");
     echo $form->getOutput();
 }

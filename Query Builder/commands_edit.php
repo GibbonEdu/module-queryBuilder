@@ -18,20 +18,21 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 use Gibbon\Forms\Form;
+use Gibbon\Services\Format;
 use Gibbon\Module\QueryBuilder\Forms\BindValues;
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 
 // Module includes
 include __DIR__.'/moduleFunctions.php';
 
-if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit.php') == false) {
+if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_edit.php') == false) {
     // Access denied
     $page->addError(__('You do not have access to this action.'));
 } else {
     // Proceed!
     $page->breadcrumbs
-        ->add(__('Manage Queries'), 'queries.php')
-        ->add(__('Edit Query'));
+        ->add(__('Manage Commands'), 'commands.php')
+        ->add(__('Edit Command'));
 
     $queryGateway = $container->get(QueryGateway::class);
 
@@ -52,7 +53,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit
     }
 
     // Prevent access to the wrong context
-    if ($values['context'] == 'Command') {
+    if ($values['context'] == 'Query') {
         $page->addError(__('You do not have access to this action.'));
         return;
     }
@@ -67,11 +68,13 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit
     
     if ($search != '') {
         echo "<div class='linkTop'>";
-        echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries.php&search=$search'>".__($guid, 'Back to Search Results').'</a>';
+        echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Query Builder/commands.php&search=$search'>".__($guid, 'Back to Search Results').'</a>';
         echo '</div>';
     }
 
-    $form = Form::create('queryBuilder', $session->get('absoluteURL').'/modules/'.$session->get('module').'/queries_editProcess.php?queryBuilderQueryID='.$queryBuilderQueryID.'&search='.$search);
+    $form = Form::create('queryBuilder', $session->get('absoluteURL').'/modules/'.$session->get('module').'/commands_editProcess.php?queryBuilderQueryID='.$queryBuilderQueryID.'&search='.$search);
+
+    $form->setDescription(Format::alert(__('Commands are SQL statements that can update or delete records in your database. Be careful when creating and editing commands, as these queries can make destructive changes to your data. <b>Always backup your database before working with commands</b>.'), 'warning'));
 
     $form->addHiddenValue('address', $session->get('address'));
 
@@ -83,8 +86,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit
         ->modalWindow();
 
     if ($values['active'] == 'Y') {
-        $form->addHeaderAction('run', __('Run Query'))
-            ->setURL('/modules/Query Builder/queries_run.php')
+        $form->addHeaderAction('run', __('Run Command'))
+            ->setURL('/modules/Query Builder/commands_run.php')
             ->addParam('search', $search)
             ->addParam('queryBuilderQueryID', $queryBuilderQueryID)
             ->addParam('sidebar', 'false')
@@ -113,14 +116,14 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit
     $actions = $queryGateway->selectActionListByPerson($session->get('gibbonPersonID'));
     $row = $form->addRow();
         $row->addLabel('moduleActionName', __('Limit Access'))->description(__('Only people with the selected permission can run this query.'));
-        $row->addSelect('moduleActionName')->fromResults($actions, 'groupBy')->placeholder()->selected($values['moduleName'].':'.$values['actionName']);
+        $row->addSelect('moduleActionName')->fromResults($actions, 'groupBy')->required()->placeholder()->selected($values['moduleName'].':'.$values['actionName']);
 
     $row = $form->addRow();
         $row->addLabel('description', __('Description'));
         $row->addTextArea('description')->setRows(8);
 
     $col = $form->addRow()->addColumn();
-        $col->addLabel('query', __('Query'));
+        $col->addLabel('query', __('Command'));
         $col->addCodeEditor('query')
             ->setMode('mysql')
             ->autocomplete(getAutocompletions($pdo))
