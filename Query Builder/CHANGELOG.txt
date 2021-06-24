@@ -1,8 +1,9 @@
 CHANGELOG
 =========
-v2.00.00
+v2.0.00
 --------
-Add an option to run Commands, which can update or delete records in the database
+Added an option to run Commands, which can update or delete records in the database
+Added the option to favourite queries and commands so they show at the top of the list
 
 v1.13.09
 --------

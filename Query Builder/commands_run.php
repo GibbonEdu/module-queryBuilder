@@ -91,6 +91,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
 
     $table = DataTable::createDetails('query');
 
+    $table->setDescription(Format::alert(__('Commands are SQL statements that can update or delete records in your database. Be careful when creating and editing commands, as these queries can make destructive changes to your data. <b>Always backup your database before working with commands</b>.'), 'warning'));
+    
     $favourite = $favouriteGateway->selectBy(['queryBuilderQueryID' => $queryBuilderQueryID, 'gibbonPersonID' => $session->get('gibbonPersonID')])->fetch();
     $iconPath = $session->get('absoluteURL').'/modules/Query Builder/img/';
     
