@@ -17,9 +17,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//This file describes the module, including database tables
+// This file describes the module, including database tables
 
-//Basic variables
+// Basic variables
 $name = 'Query Builder';
 $description = 'A module to provide SQL queries for pulling data out of Gibbon and exporting it to Excel.';
 $entryURL = 'queries.php';
@@ -29,7 +29,7 @@ $version = '2.0.00';
 $author = 'Ross Parker';
 $url = 'http://rossparker.org';
 
-//Module tables & gibbonSettings entries
+// Module tables & gibbonSettings entries
 $moduleTables[] = "CREATE TABLE `queryBuilderQuery` (
     `queryBuilderQueryID` int(10) UNSIGNED ZEROFILL NOT NULL AUTO_INCREMENT,
     `type` ENUM('gibbonedu.com','Personal','School') NOT NULL DEFAULT 'gibbonedu.com',
@@ -53,10 +53,10 @@ $moduleTables[] = "CREATE TABLE `queryBuilderFavourite` (
     UNIQUE KEY `favourite` (`queryBuilderQueryID`, `gibbonPersonID`)
 ) ENGINE = InnoDB DEFAULT CHARSET=utf8;";
 
-//gibbonSettings entries
+// gibbonSettings entries
 $gibbonSetting[] = "INSERT INTO `gibbonSetting` (`scope` ,`name` ,`nameDisplay` ,`description` ,`value`) VALUES ('Query Builder', 'exportDefaultFileType', 'Default Export File Type', '', 'Excel2007');";
 
-//Action rows
+// Action rows
 $actionRows[] = [
     'name' => 'Manage Queries_viewEditAll',
     'precedence' => '1',

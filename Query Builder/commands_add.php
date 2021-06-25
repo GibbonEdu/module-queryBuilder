@@ -22,17 +22,14 @@ use Gibbon\Services\Format;
 use Gibbon\Module\QueryBuilder\Forms\BindValues;
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 
-// Module includes
-include __DIR__.'/moduleFunctions.php';
-
 if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_add.php') == false) {
     // Access denied
     $page->addError(__('You do not have access to this action.'));
 } else {
     // Proceed!
     $page->breadcrumbs
-        ->add(__('Manage Commands'), 'commands.php')
-        ->add(__('Add Command'));
+        ->add(__m('Manage Commands'), 'commands.php')
+        ->add(__m('Add Command'));
 
     $queryGateway = $container->get(QueryGateway::class);
     
@@ -49,11 +46,11 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_add
 
     $form = Form::create('queryBuilder', $session->get('absoluteURL').'/modules/'.$session->get('module').'/commands_addProcess.php?search='.$search);
 
-    $form->setDescription(Format::alert(__('Commands are SQL statements that can update or delete records in your database. Be careful when creating and editing commands, as these queries can make destructive changes to your data. <b>Always backup your database before working with commands</b>.'), 'warning'));
+    $form->setDescription(Format::alert(__m('Commands are SQL statements that can update or delete records in your database. Be careful when creating and editing commands, as these queries can make destructive changes to your data. <b>Always backup your database before working with commands</b>.'), 'warning'));
 
     $form->addHiddenValue('address', $session->get('address'));
 
-    $form->addHeaderAction('help', __('Help'))
+    $form->addHeaderAction('help', __m('Help'))
         ->setURL('/modules/Query Builder/queries_help_full.php')
         ->setIcon('help')
         ->addClass('underline')
@@ -83,7 +80,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_add
 
     $actions = $queryGateway->selectActionListByPerson($session->get('gibbonPersonID'));
     $row = $form->addRow();
-        $row->addLabel('moduleActionName', __('Limit Access'))->description(__('Only people with the selected permission can run this query.'));
+        $row->addLabel('moduleActionName', __m('Limit Access'))->description(__m('Only people with the selected permission can run this query.'));
         $row->addSelect('moduleActionName')->fromResults($actions, 'groupBy')->required()->placeholder();
             
     $row = $form->addRow();
@@ -91,10 +88,10 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_add
         $row->addTextArea('description')->setRows(8);
 
     $col = $form->addRow()->addColumn();
-        $col->addLabel('query', __('Command'));
+        $col->addLabel('query', __m('Command'));
         $col->addCodeEditor('query')
             ->setMode('mysql')
-            ->autocomplete(getAutocompletions($pdo))
+            ->autocomplete($queryGateway->getAutocompletions())
             ->required();
 
     $bindValues = new BindValues($form->getFactory(), 'bindValues', [], $session);

@@ -21,9 +21,6 @@ use Gibbon\Forms\Form;
 use Gibbon\Module\QueryBuilder\Forms\BindValues;
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 
-// Module includes
-include __DIR__.'/moduleFunctions.php';
-
 if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_add.php') == false) {
     // Access denied
     $page->addError(__('You do not have access to this action.'));
@@ -91,7 +88,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_add.
         $col->addLabel('query', __('Query'));
         $col->addCodeEditor('query')
             ->setMode('mysql')
-            ->autocomplete(getAutocompletions($pdo))
+            ->autocomplete($queryGateway->getAutocompletions())
             ->required();
 
     $bindValues = new BindValues($form->getFactory(), 'bindValues', [], $session);

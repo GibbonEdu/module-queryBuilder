@@ -123,7 +123,7 @@ class QueryGateway extends QueryableGateway
         return $this->db()->select($sql, $data);
     }
     
-    public function getQueryByPerson($queryBuilderQueryID, $gibbonPersonID, $editing = false)
+    public function getQueryByPerson($queryBuilderQueryID, $gibbonPersonID, $editing = false, $active = false)
     {
         $data = ['queryBuilderQueryID' => $queryBuilderQueryID, 'gibbonPersonID' => $gibbonPersonID];
         $sql = "SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID ";
@@ -132,6 +132,10 @@ class QueryGateway extends QueryableGateway
             $sql .= "AND NOT type='gibbonedu.com' AND (type='School' OR (type='Personal' AND gibbonPersonID=:gibbonPersonID) )";
         } else {
             $sql .= "AND (type='gibbonedu.com' OR type='School' OR (type='Personal' AND gibbonPersonID=:gibbonPersonID) )";
+        }
+
+        if ($active) {
+            $sql .= " AND active='Y'";
         }
 
         return $this->db()->selectOne($sql, $data);
@@ -150,5 +154,59 @@ class QueryGateway extends QueryableGateway
                 AND gibbonPerson.gibbonPersonID=:gibbonPersonID" ;
 
         return $this->db()->selectOne($sql, $data);
+    }
+
+    public function getIllegals($allowCommands = false)
+    {
+        $illegals = [
+            'USE',
+            'SHOW DATABASES',
+            'SHOW TABLES',
+            'DESCRIBE',
+            'SHOW FIELDS FROM',
+            'SHOW COLUMNS FROM',
+            'SHOW INDEX FROM',
+            'SET PASSWORD',
+            'CREATE TABLE',
+            'DROP TABLE',
+            'ALTER TABLE',
+            'CREATE INDEX',
+            'LOAD DATA LOCAL INFILE',
+            'GRANT USAGE ON',
+            'GRANT SELECT ON',
+            'GRANT ALL ON',
+            'FLUSH PRIVILEGES',
+            'REVOKE ALL ON',
+        ];
+
+        if (!$allowCommands) {
+            $illegals[] = 'UPDATE';
+            $illegals[] = 'DELETE';
+            $illegals[] = 'DELETE FROM';
+            $illegals[] = 'INSERT';
+            $illegals[] = 'INSERT INTO';
+        }
+
+        return $illegals;
+    }
+
+    public function getAutocompletions()
+    {
+        $databaseName = $this->db()->selectOne('select database()');
+        
+        $fields = [];
+        $tables = $this->db()->select("SHOW TABLES")->fetchAll();
+
+        foreach ($tables as $table) {
+            $tableName = $table['Tables_in_'.$databaseName];
+            $tableFields = $this->db()->select("SHOW COLUMNS FROM ".$table['Tables_in_'.$databaseName])->fetchAll();
+            $fields[] = $tableName;
+            
+            foreach ($tableFields as $field) {
+                $fields[] = $tableName.'.'.$field['Field'];
+            }
+        }
+
+        return $fields;
     }
 }

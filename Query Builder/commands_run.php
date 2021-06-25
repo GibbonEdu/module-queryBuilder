@@ -25,9 +25,6 @@ use Gibbon\Forms\DatabaseFormFactory;
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 use Gibbon\Module\QueryBuilder\Domain\FavouriteGateway;
 
-// Module includes
-include __DIR__.'/moduleFunctions.php';
-
 // Increase memory limit
 ini_set('memory_limit', '512M');
 
@@ -37,8 +34,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
 } else {
     // Proceed!
     $page->breadcrumbs
-        ->add(__('Manage Commands'), 'commands.php')
-        ->add(__('Run Command'));
+        ->add(__m('Manage Commands'), 'commands.php')
+        ->add(__m('Run Command'));
 
     $queryGateway = $container->get(QueryGateway::class);
     $favouriteGateway = $container->get(FavouriteGateway::class);
@@ -52,7 +49,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
     if (isset($_GET['return'])) {
         $illegals = isset($_GET['illegals'])? urldecode($_GET['illegals']) : '';
         $page->return->addReturns([
-            'error3' => __('Your query contains the following illegal term(s), and so cannot be run:', 'Query Builder').' <b>'.substr($illegals, 0, -2).'</b>.'
+            'error3' => __m('Your query contains the following illegal term(s), and so cannot be run:').' <b>'.substr($illegals, 0, -2).'</b>.'
         ]);
     }
 
@@ -91,12 +88,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
 
     $table = DataTable::createDetails('query');
 
-    $table->setDescription(Format::alert(__('Commands are SQL statements that can update or delete records in your database. Be careful when creating and editing commands, as these queries can make destructive changes to your data. <b>Always backup your database before working with commands</b>.'), 'warning'));
+    $table->setDescription(Format::alert(__m('Commands are SQL statements that can update or delete records in your database. Be careful when creating and editing commands, as these queries can make destructive changes to your data. <b>Always backup your database before working with commands</b>.'), 'warning'));
     
     $favourite = $favouriteGateway->selectBy(['queryBuilderQueryID' => $queryBuilderQueryID, 'gibbonPersonID' => $session->get('gibbonPersonID')])->fetch();
     $iconPath = $session->get('absoluteURL').'/modules/Query Builder/img/';
     
-    $table->addHeaderAction('favourite', empty($favourite) ? __('Favourite') : __('Unfavourite'))
+    $table->addHeaderAction('favourite', empty($favourite) ? __m('Favourite') : __m('Unfavourite'))
         ->setURL('/modules/Query Builder/queries_favouriteProcess.php')
         ->setIcon(empty($favourite) ? $iconPath . 'like_on.png' : $iconPath . 'like_off.png')
         ->addParam('search', $search)
@@ -104,7 +101,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
         ->displayLabel();
 
     if ($highestAction == 'Manage Commands_viewEditAll') {
-        $table->addHeaderAction('help', __('Help'))
+        $table->addHeaderAction('help', __m('Help'))
             ->setURL('/modules/Query Builder/queries_help_full.php')
             ->setIcon('help')
             ->addClass('underline')
@@ -113,7 +110,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
             ->prepend(" | ");
 
         if ($values['type'] != 'gibbonedu.com') {
-            $table->addHeaderAction('edit', __('Edit Command'))
+            $table->addHeaderAction('edit', __m('Edit Command'))
                 ->setURL('/modules/Query Builder/commands_edit.php')
                 ->addParam('search', $search)
                 ->addParam('queryBuilderQueryID', $queryBuilderQueryID)
@@ -141,7 +138,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
                 $users = $roleGateway->selectUsersByAction($query['actionName']);
 
                 $output .= "<details class='mt-2'>" ;
-                    $output .= "<summary>See Users With Access</summary>" ;
+                    $output .= "<summary>".__m('See Users With Access')."</summary>" ;
                     $output .= "<div>";
                         $output .= "<ul>";
                             while ($user = $users->fetch()) {
@@ -169,10 +166,10 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
         $queryText = !empty($query)? $query : $values['query'];
 
         $col = $form->addRow()->addColumn();
-            $col->addLabel('query', __('Command'));
+            $col->addLabel('query', __m('Command'));
             $col->addCodeEditor('query')
                 ->setMode('mysql')
-                ->autocomplete(getAutocompletions($pdo))
+                ->autocomplete($queryGateway->getAutocompletions())
                 ->required()
                 ->setValue($queryText);
     } else {
@@ -211,18 +208,18 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
         $row->addFooter();
         $col = $row->addColumn()->addClass('inline right');
         if ($highestAction == 'Manage Commands_viewEditAll' && (($values['type'] == 'Personal' and $values['gibbonPersonID'] == $session->get('gibbonPersonID')) or $values['type'] == 'School')) {
-            $col->addCheckbox('save')->description(__('Save Command?'))->setValue('Y')->checked($save)->wrap('<span class="displayInlineBlock">', '</span>&nbsp;&nbsp;');
+            $col->addCheckbox('save')->description(__m('Save Command?'))->setValue('Y')->checked($save)->wrap('<span class="displayInlineBlock">', '</span>&nbsp;&nbsp;');
         } else {
             $col->addContent('');
         }
-        $col->addSubmit(__('Run Command'));
+        $col->addSubmit(__m('Run Command'));
 
     echo $form->getOutput();
 
     //PROCESS QUERY
     if (!empty($query)) {
         echo '<h3>';
-        echo __('Command Results');
+        echo __m('Command Results');
         echo '</h3>';
 
         //Strip multiple whitespaces from string
@@ -230,13 +227,13 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
 
         //Security check
         $illegalList = [];
-        foreach (getIllegals(true) as $illegal) {
+        foreach ($queryGateway->getIllegals(true) as $illegal) {
             if (preg_match('/\b('.$illegal.')\b/i', $query)) {
                 $illegalList[] = $illegal;
             }
         }
         if (!empty($illegalList)) {
-            echo Format::error(__('Your query contains the following illegal term(s), and so cannot be run:').' <b>'.implode(', ', $illegalList).'</b>.');
+            echo Format::error(__m('Your query contains the following illegal term(s), and so cannot be run:').' <b>'.implode(', ', $illegalList).'</b>.');
         } else {
             //Save the query
             if ($highestAction == 'Manage Commands_viewEditAll' && $save == 'Y') {
@@ -265,7 +262,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
             $result = $pdo->affectingStatement($query, $data);
 
             if (!$pdo->getQuerySuccess()) {
-                echo '<div class="error">'.__('Your request failed with the following error: ').$pdo->getErrorMessage().'</div>';
+                echo '<div class="error">'.__m('Your request failed with the following error: ').$pdo->getErrorMessage().'</div>';
             } else {
                 echo '<div class="success">'.__n('Your command has run successfully. 1 row was affected.', 'Your command has run successfully. {count} rows were affected.', $result).'</div>';
             } 

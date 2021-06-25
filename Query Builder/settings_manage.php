@@ -19,31 +19,25 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use Gibbon\Forms\Form;
 
-$page->breadcrumbs->add(__('Manage Settings'));
-
 if (isActionAccessible($guid, $connection2, '/modules/Query Builder/settings_manage.php') == false) {
-    //Acess denied
-    echo "<div class='error'>";
-    echo __('You do not have access to this action.');
-    echo '</div>';
+    // Access denied
+    $page->addError(__('You do not have access to this action.'));
 } else {
-    //Proceed!
-    if (isset($_GET['return'])) {
-        returnProcess($guid, $_GET['return'], null, null);
-    }
+    // Proceed!
+    $page->breadcrumbs->add(__('Manage Settings'));
 
     $form = Form::create('settingsManage', $session->get('absoluteURL').'/modules/'.$session->get('module').'/settings_manageProcess.php');
 
     $form->addHiddenValue('address', $session->get('address'));
 
-    $row = $form->addRow()->addHeading(__('Export Settings'));
+    $row = $form->addRow()->addHeading(__m('Export Settings'));
 
-    $fileTypes = array(
-        'Excel2007'    => __('Excel 2007 and above (.xlsx)', 'Query Builder'),
-        'Excel5'       => __('Excel 95 and above (.xls)', 'Query Builder'),
-        'OpenDocument' => __('OpenDocument (.ods)', 'Query Builder'),
-        'CSV'          => __('Comma Separated (.csv)', 'Query Builder'),
-    );
+    $fileTypes = [
+        'Excel2007'    => __m('Excel 2007 and above (.xlsx)'),
+        'Excel5'       => __m('Excel 95 and above (.xls)'),
+        'OpenDocument' => __m('OpenDocument (.ods)'),
+        'CSV'          => __m('Comma Separated (.csv)'),
+    ];
     $setting = getSettingByScope($connection2, 'Query Builder', 'exportDefaultFileType', true);
     $row = $form->addRow();
         $row->addLabel($setting['name'], __($setting['nameDisplay']))->description($setting['description']);

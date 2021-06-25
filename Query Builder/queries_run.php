@@ -25,9 +25,6 @@ use Gibbon\Forms\DatabaseFormFactory;
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 use Gibbon\Module\QueryBuilder\Domain\FavouriteGateway;
 
-// Module includes
-include __DIR__.'/moduleFunctions.php';
-
 // Increase memory limit
 ini_set('memory_limit', '512M');
 
@@ -37,8 +34,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
 } else {
     // Proceed!
     $page->breadcrumbs
-        ->add(__('Manage Queries'), 'queries.php')
-        ->add(__('Run Query'));
+        ->add(__m('Manage Queries'), 'queries.php')
+        ->add(__m('Run Query'));
 
     $queryGateway = $container->get(QueryGateway::class);
     $favouriteGateway = $container->get(FavouriteGateway::class);
@@ -52,7 +49,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
     if (isset($_GET['return'])) {
         $illegals = isset($_GET['illegals'])? urldecode($_GET['illegals']) : '';
         $page->return->addReturns([
-            'error3' => __('Your query contains the following illegal term(s), and so cannot be run:', 'Query Builder').' <b>'.substr($illegals, 0, -2).'</b>.'
+            'error3' => __m('Your query contains the following illegal term(s), and so cannot be run:').' <b>'.substr($illegals, 0, -2).'</b>.'
         ]);
     }
 
@@ -94,7 +91,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
     $favourite = $favouriteGateway->selectBy(['queryBuilderQueryID' => $queryBuilderQueryID, 'gibbonPersonID' => $session->get('gibbonPersonID')])->fetch();
     $iconPath = $session->get('absoluteURL').'/modules/Query Builder/img/';
 
-    $table->addHeaderAction('favourite', empty($favourite) ? __('Favourite') : __('Unfavourite'))
+    $table->addHeaderAction('favourite', empty($favourite) ? __m('Favourite') : __m('Unfavourite'))
         ->setURL('/modules/Query Builder/queries_favouriteProcess.php')
         ->setIcon(empty($favourite) ? $iconPath . 'like_on.png' : $iconPath . 'like_off.png')
         ->addParam('search', $search)
@@ -102,7 +99,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
         ->displayLabel();
 
     if ($highestAction == 'Manage Queries_viewEditAll') {
-        $table->addHeaderAction('help', __('Help'))
+        $table->addHeaderAction('help', __m('Help'))
             ->setURL('/modules/Query Builder/queries_help_full.php')
             ->setIcon('help')
             ->addClass('underline')
@@ -111,7 +108,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
             ->prepend(" | ");
 
         if ($values['type'] != 'gibbonedu.com') {
-            $table->addHeaderAction('edit', __('Edit Query'))
+            $table->addHeaderAction('edit', __m('Edit Query'))
                 ->setURL('/modules/Query Builder/queries_edit.php')
                 ->addParam('search', $search)
                 ->addParam('queryBuilderQueryID', $queryBuilderQueryID)
@@ -139,7 +136,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
                 $users = $roleGateway->selectUsersByAction($query['actionName']);
 
                 $output .= "<details class='mt-2'>" ;
-                    $output .= "<summary>See Users With Access</summary>" ;
+                    $output .= "<summary>".__m('See Users With Access')."</summary>" ;
                     $output .= "<div>";
                         $output .= "<ul>";
                             while ($user = $users->fetch()) {
@@ -167,10 +164,10 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
         $queryText = !empty($query)? $query : $values['query'];
 
         $col = $form->addRow()->addColumn();
-            $col->addLabel('query', __('Query'));
+            $col->addLabel('query', __m('Query'));
             $col->addCodeEditor('query')
                 ->setMode('mysql')
-                ->autocomplete(getAutocompletions($pdo))
+                ->autocomplete($queryGateway->getAutocompletions())
                 ->required()
                 ->setValue($queryText);
     } else {
@@ -209,7 +206,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
         $row->addFooter();
         $col = $row->addColumn()->addClass('inline right');
         if ($highestAction == 'Manage Queries_viewEditAll' && (($values['type'] == 'Personal' and $values['gibbonPersonID'] == $session->get('gibbonPersonID')) or $values['type'] == 'School')) {
-            $col->addCheckbox('save')->description(__('Save Query?'))->setValue('Y')->checked($save)->wrap('<span class="displayInlineBlock">', '</span>&nbsp;&nbsp;');
+            $col->addCheckbox('save')->description(__m('Save Query?'))->setValue('Y')->checked($save)->wrap('<span class="displayInlineBlock">', '</span>&nbsp;&nbsp;');
         } else {
             $col->addContent('');
         }
@@ -220,7 +217,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
     //PROCESS QUERY
     if (!empty($query)) {
         echo '<h3>';
-        echo __('Query Results');
+        echo __m('Query Results');
         echo '</h3>';
 
         //Strip multiple whitespaces from string
@@ -229,7 +226,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
         //Security check
         $illegal = false;
         $illegalList = '';
-        foreach (getIllegals() as $ill) {
+        foreach ($queryGateway->getIllegals() as $ill) {
             if (preg_match('/\b('.$ill.')\b/i', $query)) {
                 $illegal = true;
                 $illegalList .= $ill.', ';
@@ -237,7 +234,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
         }
         if ($illegal) {
             echo "<div class='error'>";
-            echo __('Your query contains the following illegal term(s), and so cannot be run:').' <b>'.substr($illegalList, 0, -2).'</b>.';
+            echo __m('Your query contains the following illegal term(s), and so cannot be run:').' <b>'.substr($illegalList, 0, -2).'</b>.';
             echo '</div>';
         } else {
             //Save the query
@@ -267,11 +264,11 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
             $result = $pdo->select($query, $data);
 
             if (!$pdo->getQuerySuccess()) {
-                echo '<div class="error">'.__('Your request failed with the following error: ').$pdo->getErrorMessage().'</div>';
+                echo '<div class="error">'.__m('Your request failed with the following error: ').$pdo->getErrorMessage().'</div>';
             } else if ($result->rowCount() < 1) {
-                echo '<div class="warning">'.__('Your query has returned 0 rows.').'</div>';
+                echo '<div class="warning">'.__m('Your query has returned 0 rows.').'</div>';
             } else {
-                echo '<div class="success">'.sprintf(__('Your query has returned %1$s rows, which are displayed below.'), $result->rowCount()).'</div>';
+                echo '<div class="success">'.sprintf(__m('Your query has returned %1$s rows, which are displayed below.'), $result->rowCount()).'</div>';
 
                 $invalidColumns = ['password', 'passwordStrong', 'passwordStrongSalt', 'gibbonStaffContract', 'gibbonStaffApplicationForm', 'gibbonStaffApplicationFormFile'];
 
@@ -317,6 +314,5 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
             }
         }
     }
-    
 
 }

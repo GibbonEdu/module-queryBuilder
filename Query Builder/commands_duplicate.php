@@ -26,8 +26,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_dup
 } else {
     // Proceed!
     $page->breadcrumbs
-        ->add(__('Manage Commands'), 'commands.php')
-        ->add(__('Duplicate Command'));
+        ->add(__m('Manage Commands'), 'commands.php')
+        ->add(__m('Duplicate Command'));
 
     $queryGateway = $container->get(QueryGateway::class);
 

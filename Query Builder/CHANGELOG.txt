@@ -4,6 +4,7 @@ v2.0.00
 --------
 Added an option to run Commands, which can update or delete records in the database
 Added the option to favourite queries and commands so they show at the top of the list
+Added translation support
 
 v1.13.09
 --------

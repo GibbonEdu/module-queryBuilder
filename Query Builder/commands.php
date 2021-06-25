@@ -22,12 +22,13 @@ use Gibbon\Tables\DataTable;
 use Gibbon\Services\Format;
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 
-$page->breadcrumbs->add(__('Manage Commands'));
-
 if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands.php') == false) {
     // Access denied
     $page->addError(__('You do not have access to this action.'));
 } else {
+    // Proceed!
+    $page->breadcrumbs->add(__m('Manage Commands'));
+
     $highestAction = getHighestGroupedAction($guid, $_GET['q'], $connection2);
     if (empty($highestAction)) {
         $page->addError(__('You do not have access to this action.'));
@@ -63,8 +64,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands.php
     $queries = $queryGateway->queryQueries($criteria, $session->get('gibbonPersonID'), 'Command');
 
     $table = DataTable::createPaginated('queriesManage', $criteria);
-    $table->setTitle(__('Commands'));
-    $table->setDescription(__('Commands are SQL statements that can be run on your database. Unlike queries, commands are actions that can directly change the data in your database, such as updating and deleting records. <b>Be careful running commands and backup your database before making wide-scale changes</b>.'));
+    $table->setTitle(__m('Commands'));
+    $table->setDescription(__m('Commands are SQL statements that can be run on your database. Unlike queries, commands are actions that can directly change the data in your database, such as updating and deleting records. <b>Be careful running commands and backup your database before making wide-scale changes</b>.'));
 
     if ($highestAction == 'Manage Commands_viewEditAll') {
         $table->addHeaderAction('add', __('Add'))
@@ -87,7 +88,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands.php
     $table->addColumn('category', __('Category'));
     $table->addColumn('name', __('Name'))
         ->format(function ($query) use ($session) {
-            return $query['name'] . ($query['favouriteOrder'] == 0 ? '<img class="w-4 h-4 ml-2 opacity-50" src="'.$session->get('absoluteURL').'/modules/Query Builder/img/like_on.png" title="'.__('Favourite').'">' : '');
+            return $query['name'] . ($query['favouriteOrder'] == 0 ? '<img class="w-4 h-4 ml-2 opacity-50" src="'.$session->get('absoluteURL').'/modules/Query Builder/img/like_on.png" title="'.__m('Favourite').'">' : '');
         });
     $table->addColumn('active', __('Active'))
           ->format(Format::using('yesNo', 'active'));
@@ -100,11 +101,11 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands.php
 
             if ($highestAction == 'Manage Commands_viewEditAll') {
                 if (($query['type'] == 'Personal' && $query['gibbonPersonID'] == $session->get('gibbonPersonID')) || $query['type'] == 'School') {
-                    $actions->addAction('edit', __('Edit Record'))
+                    $actions->addAction('edit', __('Edit'))
                         ->setURL('/modules/Query Builder/commands_edit.php')
                         ->addParam('sidebar', 'false');
 
-                    $actions->addAction('delete', __('Delete Record'))
+                    $actions->addAction('delete', __('Delete'))
                         ->setURL('/modules/Query Builder/commands_delete.php');
                 }
 
@@ -113,7 +114,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands.php
                     ->setIcon('copy');
             }
 
-            $actions->addAction('run', __('Run Command'))
+            $actions->addAction('run', __m('Run Command'))
                 ->setURL('/modules/Query Builder/commands_run.php')
                 ->addParam('sidebar', 'false')
                 ->setIcon('run');

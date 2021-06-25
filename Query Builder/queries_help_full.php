@@ -1,4 +1,6 @@
 <?php
+
+use Gibbon\Services\Format;
 /*
 Gibbon, Flexible & Open School System
 Copyright (C) 2010, Ross Parker
@@ -20,12 +22,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 include './config.php';
 
 if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_help_full.php') == false) {
-    //Acess denied
-    echo "<div class='error'>";
-    echo 'You do not have access to this page.';
-    echo '</div>';
+    // Access denied
+    $page->addError(__('You do not have access to this action.'));
 } else {
-    //Proceed!
+    // Proceed!
     echo '<h1>';
     echo __m('Help');
     echo '</h1>';
@@ -34,16 +34,9 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_help
     echo '</p>';
 
     //Get class variable
-    try {
-        $data = array();
-        $sql = 'SHOW TABLES';
-        $result = $connection2->prepare($sql);
-        $result->execute($data);
-    } catch (PDOException $e) { echo "<div class='error'>".$e->getMessage().'</div>';
-    }
-    if ($result->rowCount() < 1) { echo "<div class='error'>";
-        echo __($guid, 'There are no tables to show.');
-        echo '</div>';
+    $result = $pdo->select('SHOW TABLES');
+    if ($result->rowCount() < 1) { 
+        $page->addError(__m('There are no tables to show.'));
     } else {
         ?>
         <script type="text/javascript">
@@ -70,19 +63,10 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_help
                 echo $row['Tables_in_'.$databaseName];
                 echo '</h2>';
 
-                try {
-                    $dataTable = array();
-                    $sqlTable = 'SHOW COLUMNS FROM '.$row['Tables_in_'.$databaseName];
-                    $resultTable = $connection2->prepare($sqlTable);
-                    $resultTable->execute($dataTable);
-                } catch (PDOException $e) {
-                    echo "<div class='error'>".$e->getMessage().'</div>';
-                }
+                $resultTable = $pdo->select('SHOW COLUMNS FROM '.$row['Tables_in_'.$databaseName]);
 
                 if ($resultTable->rowCount() < 1) {
-                    echo "<div class='error'>";
-                    echo __($guid, 'There are no columns to show.');
-                    echo '</div>';
+                    echo Format::alert(__m('There are no columns to show.'), 'error');
                 } else {
                     echo '<ol>';
                     while ($rowTable = $resultTable->fetch()) {

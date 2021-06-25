@@ -25,18 +25,17 @@ $_POST['address'] = "/modules/Query Builder/queries_gibboneducom_sync_ajax.php";
 // Gibbon system-wide includes
 include '../../gibbon.php';
 
-// Module includes
-include $session->get('absolutePath').'/modules/Query Builder/moduleFunctions.php';
-
 // Setup variables
 $gibboneduComOrganisationName = $_POST['gibboneduComOrganisationName'];
 $gibboneduComOrganisationKey = $_POST['gibboneduComOrganisationKey'];
 $service = $_POST['service'];
 $queries = json_decode($_POST['queries'], true);
 
-if (count($queries) < 1) { // We have a problem, report it.
+if (count($queries) < 1) { 
+    // We have a problem, report it.
     echo 'fail';
-} else { // Success, let's write them to the database.
+} else { 
+    // Success, let's write them to the database.
     // But first let's remove all of the gibbonedu.com old queries that are not in downloaded list
     $queryGateway = $container->get(QueryGateway::class);
     $queryGateway->syncRemoveQueries($queries);

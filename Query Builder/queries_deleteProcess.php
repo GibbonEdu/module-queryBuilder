@@ -45,8 +45,16 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_dele
     } 
 
     // Validate this user has access to this query
-    if (empty($queryGateway->getQueryByPerson($queryBuilderQueryID, $session->get('gibbonPersonID'), true))) {
+    $values = $queryGateway->getQueryByPerson($queryBuilderQueryID, $session->get('gibbonPersonID'), true);
+    if (empty($values)) {
         $URL = $URL.'&return=error2';
+        header("Location: {$URL}");
+        exit;
+    }
+
+    // Prevent access to the wrong context
+    if ($values['context'] == 'Command') {
+        $URL = $URL.'&return=error0';
         header("Location: {$URL}");
         exit;
     }

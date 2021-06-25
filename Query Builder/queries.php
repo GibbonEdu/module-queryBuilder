@@ -22,22 +22,12 @@ use Gibbon\Tables\DataTable;
 use Gibbon\Services\Format;
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 
-//Module includes
-include __DIR__.'/moduleFunctions.php';
-
 $page->breadcrumbs->add(__('Manage Queries'));
 
 if (isModuleAccessible($guid, $connection2) == false) {
-    //Acess denied
-    echo "<div class='error'>";
-    echo __('You do not have access to this action.');
-    echo '</div>';
+    // Access denied
+    $page->addError(__('You do not have access to this action.'));
 } else {
-    $returns = array();
-    if (isset($_GET['return'])) {
-        returnProcess($guid, $_GET['return'], NULL, $returns);
-    }
-
     $highestAction = getHighestGroupedAction($guid, $_GET['q'], $connection2);
 
     if ($highestAction == 'Manage Queries_viewEditAll') {
@@ -85,7 +75,7 @@ if (isModuleAccessible($guid, $connection2) == false) {
         echo "<div id='status' class='warning'>";
         echo "<div style='width: 100%; text-align: center'>";
         echo "<img style='margin: 10px 0 5px 0' src='".$session->get('absoluteURL')."/themes/Default/img/loading.gif' alt='Loading'/><br/>";
-        echo 'Checking gibbonedu.com value added license status.';
+        echo __m('Checking gibbonedu.com value added license status.');
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -108,7 +98,7 @@ if (isModuleAccessible($guid, $connection2) == false) {
     $form->addHiddenValue('q', '/modules/'.$session->get('module').'/queries.php');
 
     $row = $form->addRow();
-        $row->addLabel('search', __('Search For'))->description(__('Query name and category.'));
+        $row->addLabel('search', __('Search For'))->description(__m('Query name and category.'));
         $row->addTextField('search')->setValue($criteria->getSearchText());
 
     $row = $form->addRow();
@@ -120,7 +110,7 @@ if (isModuleAccessible($guid, $connection2) == false) {
     $queries = $queryGateway->queryQueries($criteria, $session->get('gibbonPersonID'));
 
     $table = DataTable::createPaginated('queriesManage', $criteria);
-    $table->setTitle(__('Queries'));
+    $table->setTitle(__m('Queries'));
 
     if ($highestAction == 'Manage Queries_viewEditAll') {
         $table->addHeaderAction('add', __('Add'))
@@ -156,11 +146,11 @@ if (isModuleAccessible($guid, $connection2) == false) {
 
             if ($highestAction == 'Manage Queries_viewEditAll') {
                 if (($query['type'] == 'Personal' && $query['gibbonPersonID'] == $session->get('gibbonPersonID')) || $query['type'] == 'School') {
-                    $actions->addAction('edit', __('Edit Record'))
+                    $actions->addAction('edit', __('Edit'))
                         ->setURL('/modules/Query Builder/queries_edit.php')
                         ->addParam('sidebar', 'false');
 
-                    $actions->addAction('delete', __('Delete Record'))
+                    $actions->addAction('delete', __('Delete'))
                         ->setURL('/modules/Query Builder/queries_delete.php');
                 }
 
@@ -169,7 +159,7 @@ if (isModuleAccessible($guid, $connection2) == false) {
                     ->setIcon('copy');
             }
 
-            $actions->addAction('run', __('Run Query'))
+            $actions->addAction('run', __m('Run Query'))
                 ->setURL('/modules/Query Builder/queries_run.php')
                 ->addParam('sidebar', 'false')
                 ->setIcon('run');

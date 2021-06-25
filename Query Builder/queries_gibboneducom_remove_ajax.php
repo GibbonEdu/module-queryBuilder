@@ -17,22 +17,19 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-//Gibbon system-wide includes
+use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
+
+$_POST['address'] = '/modules/Query Builder/queries.php';
+
+// Gibbon system-wide includes
 include '../../gibbon.php';
 
-//Module includes
-include $session->get('absolutePath').'/modules/'.$session->get('module').'/moduleFunctions.php';
-
-//Setup variables
+// Setup variables
 $gibboneduComOrganisationName = $_GET['gibboneduComOrganisationName'];
 $gibboneduComOrganisationKey = $_GET['gibboneduComOrganisationKey'];
 $service = $_GET['service'];
 
-//Remove all gibbonedu.com queries
-try {
-    $data = array();
-    $sql = "DELETE FROM queryBuilderQuery WHERE type='gibbonedu.com'";
-    $result = $connection2->prepare($sql);
-    $result->execute($data);
-} catch (PDOException $e) {
-}
+$queryGateway = $container->get(QueryGateway::class);
+
+// Remove all gibbonedu.com queries
+$queryGateway->deleteWhere(['type' => 'gibbonedu.com']);

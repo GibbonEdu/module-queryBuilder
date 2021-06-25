@@ -21,17 +21,14 @@ use Gibbon\Forms\Form;
 use Gibbon\Module\QueryBuilder\Forms\BindValues;
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 
-// Module includes
-include __DIR__.'/moduleFunctions.php';
-
 if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit.php') == false) {
     // Access denied
     $page->addError(__('You do not have access to this action.'));
 } else {
     // Proceed!
     $page->breadcrumbs
-        ->add(__('Manage Queries'), 'queries.php')
-        ->add(__('Edit Query'));
+        ->add(__m('Manage Queries'), 'queries.php')
+        ->add(__m('Edit Query'));
 
     $queryGateway = $container->get(QueryGateway::class);
 
@@ -75,7 +72,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit
 
     $form->addHiddenValue('address', $session->get('address'));
 
-    $form->addHeaderAction('help', __('Help'))
+    $form->addHeaderAction('help', __m('Help'))
         ->setURL('/modules/Query Builder/queries_help_full.php')
         ->setIcon('help')
         ->addClass('underline')
@@ -83,7 +80,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit
         ->modalWindow();
 
     if ($values['active'] == 'Y') {
-        $form->addHeaderAction('run', __('Run Query'))
+        $form->addHeaderAction('run', __m('Run Query'))
             ->setURL('/modules/Query Builder/queries_run.php')
             ->addParam('search', $search)
             ->addParam('queryBuilderQueryID', $queryBuilderQueryID)
@@ -112,7 +109,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit
 
     $actions = $queryGateway->selectActionListByPerson($session->get('gibbonPersonID'));
     $row = $form->addRow();
-        $row->addLabel('moduleActionName', __('Limit Access'))->description(__('Only people with the selected permission can run this query.'));
+        $row->addLabel('moduleActionName', __m('Limit Access'))->description(__m('Only people with the selected permission can run this query.'));
         $row->addSelect('moduleActionName')->fromResults($actions, 'groupBy')->placeholder()->selected($values['moduleName'].':'.$values['actionName']);
 
     $row = $form->addRow();
@@ -120,10 +117,10 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit
         $row->addTextArea('description')->setRows(8);
 
     $col = $form->addRow()->addColumn();
-        $col->addLabel('query', __('Query'));
+        $col->addLabel('query', __m('Query'));
         $col->addCodeEditor('query')
             ->setMode('mysql')
-            ->autocomplete(getAutocompletions($pdo))
+            ->autocomplete($queryGateway->getAutocompletions())
             ->required();
 
     $bindValues = new BindValues($form->getFactory(), 'bindValues', $values, $session);

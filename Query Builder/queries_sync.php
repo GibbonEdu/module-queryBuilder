@@ -17,19 +17,17 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-$page->breadcrumbs
-  ->add(__('Manage Queries'), 'queries.php')
-  ->add(__('Sync Queries'));
-
 if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_sync.php') == false) {
-    //Acess denied
-    echo "<div class='error'>";
-    echo __($guid, 'You do not have access to this action.');
-    echo '</div>';
+    // Access denied
+    $page->addError(__('You do not have access to this action.'));
 } else {
-    //Proceed!
+    // Proceed!
+    $page->breadcrumbs
+        ->add(__m('Manage Queries'), 'queries.php')
+        ->add(__m('Sync Queries'));
+
     echo '<p>';
-    echo 'This page will automatically attempt to sync queries from the gibbonedu.com Query Builder valued added service. The results of the sync will be given below.';
+    echo __m('This page will automatically attempt to sync queries from the gibbonedu.com Query Builder valued added service. The results of the sync will be given below.');
     echo '<p>';
 
     $gibboneduComOrganisationName = getSettingByScope($connection2, 'System', 'gibboneduComOrganisationName');
@@ -93,7 +91,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_sync
     echo "<div id='status' class='warning'>";
     echo "<div style='width: 100%; text-align: center'>";
     echo "<img style='margin: 10px 0 5px 0' src='".$session->get('absoluteURL')."/themes/Default/img/loading.gif' alt='Loading'/><br/>";
-    echo 'Checking gibbonedu.com value added license status.';
+    echo __m('Checking gibbonedu.com value added license status.');
     echo '</div>';
     echo '</div>';
 }
