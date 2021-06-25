@@ -369,3 +369,9 @@ CREATE TABLE `queryBuilderFavourite` (`queryBuilderFavouriteID` INT(12) UNSIGNED
 UPDATE gibbonAction SET category='Settings' WHERE name='Manage Settings' AND gibbonModuleID=(SELECT gibbonModuleID FROM gibbonModule WHERE name='Query Builder');end
 
 ";
+
+//v2.0.01
+++$count;
+$sql[$count][0] = '2.0.01';
+$sql[$count][1] = "
+";

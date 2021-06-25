@@ -89,11 +89,10 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
     $table = DataTable::createDetails('query');
 
     $favourite = $favouriteGateway->selectBy(['queryBuilderQueryID' => $queryBuilderQueryID, 'gibbonPersonID' => $session->get('gibbonPersonID')])->fetch();
-    $iconPath = $session->get('absoluteURL').'/modules/Query Builder/img/';
 
     $table->addHeaderAction('favourite', empty($favourite) ? __m('Favourite') : __m('Unfavourite'))
         ->setURL('/modules/Query Builder/queries_favouriteProcess.php')
-        ->setIcon(empty($favourite) ? $iconPath . 'like_on.png' : $iconPath . 'like_off.png')
+        ->setIcon('gift')
         ->addParam('search', $search)
         ->addParam('queryBuilderQueryID', $queryBuilderQueryID)
         ->displayLabel();

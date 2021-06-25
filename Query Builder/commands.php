@@ -88,7 +88,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands.php
     $table->addColumn('category', __('Category'));
     $table->addColumn('name', __('Name'))
         ->format(function ($query) use ($session) {
-            return $query['name'] . ($query['favouriteOrder'] == 0 ? '<img class="w-4 h-4 ml-2 opacity-50" src="'.$session->get('absoluteURL').'/modules/Query Builder/img/like_on.png" title="'.__m('Favourite').'">' : '');
+            return $query['name'] . ($query['favouriteOrder'] == 0 ? '<img class="w-4 h-4 ml-2 opacity-50" src="'.$session->get('absoluteURL').'/themes/'.$session->get('gibbonThemeName').'/img/gift.png" title="'.__m('Favourite').'">' : '');
         });
     $table->addColumn('active', __('Active'))
           ->format(Format::using('yesNo', 'active'));

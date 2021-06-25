@@ -81,7 +81,7 @@ if (isModuleAccessible($guid, $connection2) == false) {
         echo '</div>';
     }
 
-    $search = isset($_GET['search'])? $_GET['search'] : '';
+    $search = $_GET['search'] ?? '';
 
     // CRITERIA
     $queryGateway = $container->get(QueryGateway::class);
@@ -133,7 +133,7 @@ if (isModuleAccessible($guid, $connection2) == false) {
     $table->addColumn('category', __('Category'));
     $table->addColumn('name', __('Name'))
         ->format(function ($query) use ($session) {
-            return $query['name'] . ($query['favouriteOrder'] == 0 ? '<img class="w-4 h-4 ml-2 opacity-50" src="'.$session->get('absoluteURL').'/modules/Query Builder/img/like_on.png" title="'.__('Favourite').'">' : '');
+            return $query['name'] . ($query['favouriteOrder'] == 0 ? '<img class="w-4 h-4 ml-2 opacity-50" src="'.$session->get('absoluteURL').'/themes/'.$session->get('gibbonThemeName').'/img/gift.png" title="'.__('Favourite').'">' : '');
         });
     $table->addColumn('active', __('Active'))
           ->format(Format::using('yesNo', 'active'));

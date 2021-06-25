@@ -1,5 +1,10 @@
 CHANGELOG
 =========
+v2.0.01
+--------
+Removed the v23 requirement
+Changed the icon for favourite queries/commands
+
 v2.0.00
 --------
 Added an option to run Commands, which can update or delete records in the database
