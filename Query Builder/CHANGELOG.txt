@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+v2.0.02
+--------
+Added a dry run option to Run Command
+
 v2.0.01
 --------
 Removed the v23 requirement

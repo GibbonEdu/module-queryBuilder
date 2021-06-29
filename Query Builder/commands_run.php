@@ -41,10 +41,11 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
     $favouriteGateway = $container->get(FavouriteGateway::class);
     $highestAction = getHighestGroupedAction($guid, $_GET['q'], $connection2);
 
-    $queryBuilderQueryID =$_GET['queryBuilderQueryID'] ?? '';
+    $queryBuilderQueryID = $_GET['queryBuilderQueryID'] ?? '';
     $search = $_GET['search'] ?? '';
     $save = $_POST['save'] ?? '';
     $query = $_POST['query'] ?? '';
+    $dryRunOnly = $_POST['dryRunOnly'] ?? 'N';
 
     if (isset($_GET['return'])) {
         $illegals = isset($_GET['illegals'])? urldecode($_GET['illegals']) : '';
@@ -204,14 +205,17 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
     }
 
     $row = $form->addRow();
-        $row->addFooter();
-        $col = $row->addColumn()->addClass('inline right');
+        
+        $col = $row->addColumn()->addClass('inline right text-right');
         if ($highestAction == 'Manage Commands_viewEditAll' && (($values['type'] == 'Personal' and $values['gibbonPersonID'] == $session->get('gibbonPersonID')) or $values['type'] == 'School')) {
             $col->addCheckbox('save')->description(__m('Save Command?'))->setValue('Y')->checked($save)->wrap('<span class="displayInlineBlock">', '</span>&nbsp;&nbsp;');
         } else {
             $col->addContent('');
         }
-        $col->addSubmit(__m('Run Command'));
+
+        $form->addHiddenValue('dryRunOnly', 'N');
+        
+        $col->addSubmit(__m('Run Command'))->prepend(sprintf('<input type="button" value="%s" onclick="dryrun()">',__('Dry Run')));
 
     echo $form->getOutput();
 
@@ -258,13 +262,32 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
             }
 
             // Run the query
-            $result = $pdo->affectingStatement($query, $data);
+            if ($dryRunOnly == 'Y') {
+                // Dry Run
+                $pdo->beginTransaction();
+                $result = $pdo->affectingStatement($query, $data);
+                $pdo->rollBack();
+            } else {
+                // Live Run
+                $result = $pdo->affectingStatement($query, $data);
+            }
 
             if (!$pdo->getQuerySuccess()) {
-                echo '<div class="error">'.__m('Your request failed with the following error: ').$pdo->getErrorMessage().'</div>';
+                echo Format::alert(__m('Your request failed with the following error: ').$pdo->getErrorMessage(), 'error');
+            } elseif ($dryRunOnly == 'Y') {
+                echo Format::alert(__n('Your command has run as a DRY RUN only: no data has been changed. <b>1</b> row would potentially be affected.', 'Your command has run as a DRY RUN only: no data has been changed. <b>{count}</b> rows would potentially be affected.', $result), 'message');
             } else {
-                echo '<div class="success">'.__n('Your command has run successfully. 1 row was affected.', 'Your command has run successfully. {count} rows were affected.', $result).'</div>';
+                echo Format::alert(__n('Your command has run successfully. <b>1</b> row was affected.', 'Your command has run successfully. <b>{count}</b> rows were affected.', $result), 'success');
             } 
+
+            
         }
     }
 }
+?>
+<script>
+function dryrun() {
+    $('[name="dryRunOnly"]').val('Y');
+    document.getElementById('queryBuilder').submit();
+}
+</script>

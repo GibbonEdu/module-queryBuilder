@@ -298,7 +298,9 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
                     $colName = $col['name'];
                     if (!in_array($colName, $invalidColumns)) {
                         $table->addColumn($colName, $colName)->format(function($row) use ($colName) {
-                            if (strlen($row[$colName]) > 50 && $colName !='image' && $colName!='image_240') {
+                            if (stripos($colName, 'plain text') !== false) {
+                                return substr(strip_tags($row[$colName]), 0, 150).'...';
+                            } elseif (strlen($row[$colName]) > 50 && $colName !='image' && $colName!='image_240') {
                                 return substr($row[$colName], 0, 50).'...';
                             } else {
                                 return $row[$colName];
