@@ -1,5 +1,12 @@
 CHANGELOG
 =========
+v2.0.03
+--------
+Added a CHANGEDB entry to update gibbonFormGroup references in queries
+
+v2.0.02
+--------
+Added a dry run option to Run Command
 v2.0.02
 --------
 Added a dry run option to Run Command
