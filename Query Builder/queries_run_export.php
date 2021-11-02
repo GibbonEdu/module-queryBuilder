@@ -19,6 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use Gibbon\Services\Format;
 use Gibbon\Tables\DataTable;
+use Gibbon\Domain\System\SettingGateway;
 use Gibbon\Tables\Renderer\SpreadsheetRenderer;
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 
@@ -98,7 +99,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
     $filename = substr(preg_replace('/[^a-zA-Z0-9]/', '', $values['name']), 0, 30);
 
     $table->addMetaData('filename', 'queryExport_'.$filename);
-    $table->addMetaData('filetype', getSettingByScope($connection2, 'Query Builder', 'exportDefaultFileType'));
+    $table->addMetaData('filetype', $container->get(SettingGateway::class)->getSettingByScope('Query Builder', 'exportDefaultFileType'));
     $table->addMetaData('creator', Format::name('', $session->get('preferredName'), $session->get('surname'), 'Staff'));
     $table->addMetaData('name', $values['name']);
 

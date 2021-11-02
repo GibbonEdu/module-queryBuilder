@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+v2.0.04
+--------
+Removed deprecated function calls
+
 v2.0.03
 --------
 Added a CHANGEDB entry to update gibbonFormGroup references in queries

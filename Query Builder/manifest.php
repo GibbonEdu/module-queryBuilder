@@ -25,7 +25,7 @@ $description = 'A module to provide SQL queries for pulling data out of Gibbon a
 $entryURL = 'queries.php';
 $type = 'Additional';
 $category = 'Admin';
-$version = '2.0.03';
+$version = '2.0.04';
 $author = 'Ross Parker';
 $url = 'http://rossparker.org';
 
@@ -37,11 +37,11 @@ $moduleTables[] = "CREATE TABLE `queryBuilderQuery` (
     `scope` VARCHAR(30) NOT NULL DEFAULT 'Core', `name` VARCHAR(255) NOT NULL,
     `category` VARCHAR(50) NOT NULL, `moduleName` VARCHAR(30) NULL DEFAULT NULL,
     `actionName` VARCHAR(50) NULL DEFAULT NULL,
-    `description` TEXT NOT NULL, 
+    `description` TEXT NOT NULL,
     `query` TEXT NOT NULL, `bindValues` TEXT NULL DEFAULT NULL,
-    `active` ENUM('Y','N') NOT NULL DEFAULT 'Y', 
-    `queryID` INT(10) UNSIGNED ZEROFILL DEFAULT NULL COMMENT 'If based on a gibbonedu.org query.', 
-    `gibbonPersonID` int(10) UNSIGNED ZEROFILL DEFAULT NULL, 
+    `active` ENUM('Y','N') NOT NULL DEFAULT 'Y',
+    `queryID` INT(10) UNSIGNED ZEROFILL DEFAULT NULL COMMENT 'If based on a gibbonedu.org query.',
+    `gibbonPersonID` int(10) UNSIGNED ZEROFILL DEFAULT NULL,
     PRIMARY KEY (`queryBuilderQueryID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8";
 

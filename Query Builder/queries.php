@@ -18,8 +18,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 use Gibbon\Forms\Form;
-use Gibbon\Tables\DataTable;
 use Gibbon\Services\Format;
+use Gibbon\Tables\DataTable;
+use Gibbon\Domain\System\SettingGateway;
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 
 $page->breadcrumbs->add(__('Manage Queries'));
@@ -31,8 +32,9 @@ if (isModuleAccessible($guid, $connection2) == false) {
     $highestAction = getHighestGroupedAction($guid, $_GET['q'], $connection2);
 
     if ($highestAction == 'Manage Queries_viewEditAll') {
-        $gibboneduComOrganisationName = getSettingByScope($connection2, 'System', 'gibboneduComOrganisationName');
-        $gibboneduComOrganisationKey = getSettingByScope($connection2, 'System', 'gibboneduComOrganisationKey');
+    	$settingGateway = $container->get(SettingGateway::class);
+        $gibboneduComOrganisationName = $settingGateway->getSettingByScope('System', 'gibboneduComOrganisationName');
+        $gibboneduComOrganisationKey = $settingGateway->getSettingByScope('System', 'gibboneduComOrganisationKey');
 
         echo '<script type="text/javascript">';
             echo '$(document).ready(function(){';

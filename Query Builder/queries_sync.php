@@ -17,6 +17,8 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+use Gibbon\Domain\System\SettingGateway;
+
 if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_sync.php') == false) {
     // Access denied
     $page->addError(__('You do not have access to this action.'));
@@ -30,8 +32,9 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_sync
     echo __m('This page will automatically attempt to sync queries from the gibbonedu.com Query Builder valued added service. The results of the sync will be given below.');
     echo '<p>';
 
-    $gibboneduComOrganisationName = getSettingByScope($connection2, 'System', 'gibboneduComOrganisationName');
-    $gibboneduComOrganisationKey = getSettingByScope($connection2, 'System', 'gibboneduComOrganisationKey');
+	$settingGateway = $container->get(SettingGateway::class);
+    $gibboneduComOrganisationName = $settingGateway->getSettingByScope('System', 'gibboneduComOrganisationName');
+    $gibboneduComOrganisationKey = $settingGateway->getSettingByScope('System', 'gibboneduComOrganisationKey');
 
     echo '<script type="text/javascript">';
 		echo '$(document).ready(function(){';

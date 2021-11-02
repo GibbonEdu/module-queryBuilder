@@ -373,17 +373,20 @@ UPDATE gibbonAction SET category='Settings' WHERE name='Manage Settings' AND gib
 //v2.0.01
 ++$count;
 $sql[$count][0] = '2.0.01';
-$sql[$count][1] = "
-";
+$sql[$count][1] = "";
 
 //v2.0.02
 ++$count;
 $sql[$count][0] = '2.0.02';
-$sql[$count][1] = "
-";
+$sql[$count][1] = "";
 
 //v2.0.03
 ++$count;
 $sql[$count][0] = '2.0.03';
 $sql[$count][1] = "UPDATE `queryBuilderQuery` SET `query`=REPLACE(`query`, 'gibbonRollGroup', 'gibbonFormGroup');end
 ";
+
+//v2.0.04
+++$count;
+$sql[$count][0] = '2.0.04';
+$sql[$count][1] = "";
