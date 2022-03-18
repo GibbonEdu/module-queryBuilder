@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+use Gibbon\Http\Url;
 use Gibbon\Forms\Form;
 use Gibbon\Services\Format;
 use Gibbon\Tables\DataTable;
@@ -80,17 +81,18 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
             return;
         }
     }
-   
+
     if ($search != '') {
-        echo "<div class='linkTop'>";
-        echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Query Builder/commands.php&search=$search'>".__($guid, 'Back to Search Results').'</a>';
-        echo '</div>';
+        $params = [
+            "search" => $search
+        ];
+        $page->navigator->addSearchResultsAction(Url::fromModuleRoute('Query Builder', 'commands.php')->withQueryParams($params));
     }
 
     $table = DataTable::createDetails('query');
 
     $table->setDescription(Format::alert(__m('Commands are SQL statements that can update or delete records in your database. Be careful when creating and editing commands, as these queries can make destructive changes to your data. <b>Always backup your database before working with commands</b>.'), 'warning'));
-    
+
     $favourite = $favouriteGateway->selectBy(['queryBuilderQueryID' => $queryBuilderQueryID, 'gibbonPersonID' => $session->get('gibbonPersonID')])->fetch();
 
     $table->addHeaderAction('favourite', empty($favourite) ? __m('Favourite') : __m('Unfavourite'))
@@ -205,7 +207,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
     }
 
     $row = $form->addRow();
-        
+
         $col = $row->addColumn()->addClass('inline right text-right');
         if ($highestAction == 'Manage Commands_viewEditAll' && (($values['type'] == 'Personal' and $values['gibbonPersonID'] == $session->get('gibbonPersonID')) or $values['type'] == 'School')) {
             $col->addCheckbox('save')->description(__m('Save Command?'))->setValue('Y')->checked($save)->wrap('<span class="displayInlineBlock">', '</span>&nbsp;&nbsp;');
@@ -214,7 +216,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
         }
 
         $form->addHiddenValue('dryRunOnly', 'N');
-        
+
         $col->addSubmit(__m('Run Command'))->prepend(sprintf('<input type="button" value="%s" onclick="dryrun()">',__('Dry Run')));
 
     echo $form->getOutput();
@@ -278,9 +280,9 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
                 echo Format::alert(__n('Your command has run as a DRY RUN only: no data has been changed. <b>1</b> row would potentially be affected.', 'Your command has run as a DRY RUN only: no data has been changed. <b>{count}</b> rows would potentially be affected.', $result), 'message');
             } else {
                 echo Format::alert(__n('Your command has run successfully. <b>1</b> row was affected.', 'Your command has run successfully. <b>{count}</b> rows were affected.', $result), 'success');
-            } 
+            }
 
-            
+
         }
     }
 }

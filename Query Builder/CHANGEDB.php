@@ -390,3 +390,8 @@ $sql[$count][1] = "UPDATE `queryBuilderQuery` SET `query`=REPLACE(`query`, 'gibb
 ++$count;
 $sql[$count][0] = '2.0.04';
 $sql[$count][1] = "";
+
+//v2.0.05
+++$count;
+$sql[$count][0] = '2.0.05';
+$sql[$count][1] = "";

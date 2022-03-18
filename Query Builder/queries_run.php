@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+use Gibbon\Http\Url;
 use Gibbon\Forms\Form;
 use Gibbon\Services\Format;
 use Gibbon\Tables\DataTable;
@@ -79,11 +80,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
             return;
         }
     }
-   
+
     if ($search != '') {
-        echo "<div class='linkTop'>";
-        echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries.php&search=$search'>".__('Back to Search Results').'</a>';
-        echo '</div>';
+        $params = [
+            "search" => $search
+        ];
+        $page->navigator->addSearchResultsAction(Url::fromModuleRoute('Query Builder', 'queries.php')->withQueryParams($params));
     }
 
     $table = DataTable::createDetails('query');

@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+use Gibbon\Http\Url;
 use Gibbon\Forms\Form;
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 
@@ -35,15 +36,16 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_dupl
     $search = $_GET['search'] ?? '';
 
     if (isset($_GET['editID'])) {
-        $page->return->setEditLink($session->get('absoluteURL').'/index.php?q=/modules/Query Builder/queries_edit.php&queryBuilderQueryID='.$_GET['editID'].'&search='.$_GET['search'].'&sidebar=false');
+        $page->return->setEditLink($session->get('absoluteURL').'/index.php?q=/modules/Query Builder/queries_edit.php&queryBuilderQueryID='.$_GET['editID']."&search=$search&sidebar=false");
     }
 
     if ($search != '') {
-        echo "<div class='linkTop'>";
-        echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries.php&search=$search'>".__('Back to Search Results').'</a>';
-        echo '</div>';
+        $params = [
+            "search" => $search
+        ];
+        $page->navigator->addSearchResultsAction(Url::fromModuleRoute('Query Builder', 'queries.php')->withQueryParams($params));
     }
-    
+
     // Validate the required values are present
     if (empty($queryBuilderQueryID)) {
         $page->addError(__('You have not specified one or more required parameters.'));

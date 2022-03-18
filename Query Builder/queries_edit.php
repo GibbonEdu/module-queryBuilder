@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+use Gibbon\Http\Url;
 use Gibbon\Forms\Form;
 use Gibbon\Module\QueryBuilder\Forms\BindValues;
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
@@ -61,11 +62,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit
             return;
         }
     }
-    
+
     if ($search != '') {
-        echo "<div class='linkTop'>";
-        echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Query Builder/queries.php&search=$search'>".__($guid, 'Back to Search Results').'</a>';
-        echo '</div>';
+        $params = [
+            "search" => $search
+        ];
+        $page->navigator->addSearchResultsAction(Url::fromModuleRoute('Query Builder', 'queries.php')->withQueryParams($params));
     }
 
     $form = Form::create('queryBuilder', $session->get('absoluteURL').'/modules/'.$session->get('module').'/queries_editProcess.php?queryBuilderQueryID='.$queryBuilderQueryID.'&search='.$search);

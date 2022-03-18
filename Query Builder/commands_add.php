@@ -17,6 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+use Gibbon\Http\Url;
 use Gibbon\Forms\Form;
 use Gibbon\Services\Format;
 use Gibbon\Module\QueryBuilder\Forms\BindValues;
@@ -31,17 +32,19 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_add
         ->add(__m('Manage Commands'), 'commands.php')
         ->add(__m('Add Command'));
 
+    $search = $_GET['search'] ?? '';
+
     $queryGateway = $container->get(QueryGateway::class);
-    
+
     if (isset($_GET['editID'])) {
-        $page->return->setEditLink($session->get('absoluteURL').'/index.php?q=/modules/Query Builder/commands_edit.php&queryBuilderQueryID='.$_GET['editID'].'&search='.$_GET['search'].'&sidebar=false');
+        $page->return->setEditLink($session->get('absoluteURL').'/index.php?q=/modules/Query Builder/commands_edit.php&queryBuilderQueryID='.$_GET['editID']."&search$search&sidebar=false");
     }
 
-    $search = $_GET['search'] ?? '';
     if ($search != '') {
-        echo "<div class='linkTop'>";
-        echo "<a href='".$session->get('absoluteURL')."/index.php?q=/modules/Query Builder/commands.php&search=$search'>".__('Back to Search Results').'</a>';
-        echo '</div>';
+        $params = [
+            "search" => $search
+        ];
+        $page->navigator->addSearchResultsAction(Url::fromModuleRoute('Query Builder', 'commands.php')->withQueryParams($params));
     }
 
     $form = Form::create('queryBuilder', $session->get('absoluteURL').'/modules/'.$session->get('module').'/commands_addProcess.php?search='.$search);
@@ -82,7 +85,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_add
     $row = $form->addRow();
         $row->addLabel('moduleActionName', __m('Limit Access'))->description(__m('Only people with the selected permission can run this query.'));
         $row->addSelect('moduleActionName')->fromResults($actions, 'groupBy')->required()->placeholder();
-            
+
     $row = $form->addRow();
         $row->addLabel('description', __('Description'));
         $row->addTextArea('description')->setRows(8);
