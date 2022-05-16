@@ -19,15 +19,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use Gibbon\Http\Url;
 use Gibbon\Forms\Form;
+use Gibbon\Domain\DataSet;
 use Gibbon\Services\Format;
 use Gibbon\Tables\DataTable;
 use Gibbon\Domain\User\RoleGateway;
 use Gibbon\Forms\DatabaseFormFactory;
+use Gibbon\Domain\System\SettingGateway;
 use Gibbon\Module\QueryBuilder\Domain\QueryGateway;
 use Gibbon\Module\QueryBuilder\Domain\FavouriteGateway;
 
 // Increase memory limit
 ini_set('memory_limit', '512M');
+ini_set('max_execution_time', 0);
 
 if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.php') == false) {
     // Access denied
@@ -38,6 +41,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
         ->add(__m('Manage Queries'), 'queries.php')
         ->add(__m('Run Query'));
 
+    $settingGateway = $container->get(SettingGateway::class);
     $queryGateway = $container->get(QueryGateway::class);
     $favouriteGateway = $container->get(FavouriteGateway::class);
     $highestAction = getHighestGroupedAction($guid, $_GET['q'], $connection2);
@@ -264,12 +268,21 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
             // Run the query
             $result = $pdo->select($query, $data);
 
+            // Check rowLimit setting
+            $rowLimit = $container->get(SettingGateway::class)->getSettingByScope('Query Builder', 'rowLimit');
+            $limited = ($rowLimit > 0 && $result->rowCount() > $rowLimit) ? true : false ;
+            $rows = ($limited) ? $rowLimit : $result->columnCount();
+
             if (!$pdo->getQuerySuccess()) {
                 echo '<div class="error">'.__m('Your request failed with the following error: ').$pdo->getErrorMessage().'</div>';
             } else if ($result->rowCount() < 1) {
                 echo '<div class="warning">'.__m('Your query has returned 0 rows.').'</div>';
             } else {
                 echo '<div class="success">'.sprintf(__m('Your query has returned %1$s rows, which are displayed below.'), $result->rowCount()).'</div>';
+
+                if ($limited) {
+                    echo '<div class="warning">'.sprintf(__m('The output of your query was limited to %1$s rows to reduce memory usage. All rows will be included in the export.'), $rowLimit).'</div>';
+                }
 
                 $invalidColumns = ['password', 'passwordStrong', 'passwordStrongSalt', 'gibbonStaffContract', 'gibbonStaffApplicationForm', 'gibbonStaffApplicationFormFile'];
 
@@ -295,7 +308,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
                     return '<span class="subdued">'.$count++.'</span>';
                 });
 
-                for ($i = 0; $i < $result->columnCount(); ++$i) {
+                for ($i = 0; $i < $rows; ++$i) {
                     $col = $result->getColumnMeta($i);
                     $colName = $col['name'];
                     if (!in_array($colName, $invalidColumns)) {
@@ -311,10 +324,19 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
                     }
                 }
 
+                //Selectively apply $rowLimit to result set
+                if ($limited) {
+                    $result = new DataSet(array_slice($result->toDataSet()->toArray(), 0, $rows));
+                } else {
+                    $result = $result->toDataSet();
+                }
+
                 echo "<div style='overflow-x:auto;'>";
-                echo $table->render($result->toDataSet());
+                echo $table->render($result);
                 echo '</div>';
             }
+
+            echo '<div class="message">'.sprintf(__m('This query used %1$sMB of memory.'), (round(memory_get_peak_usage()/(1024*1024),2))).'</div>';
         }
     }
 

@@ -25,7 +25,7 @@ $description = 'A module to provide SQL queries for pulling data out of Gibbon a
 $entryURL = 'queries.php';
 $type = 'Additional';
 $category = 'Admin';
-$version = '2.0.05';
+$version = '2.0.06';
 $author = 'Ross Parker';
 $url = 'http://rossparker.org';
 
@@ -55,6 +55,7 @@ $moduleTables[] = "CREATE TABLE `queryBuilderFavourite` (
 
 // gibbonSettings entries
 $gibbonSetting[] = "INSERT INTO `gibbonSetting` (`scope` ,`name` ,`nameDisplay` ,`description` ,`value`) VALUES ('Query Builder', 'exportDefaultFileType', 'Default Export File Type', '', 'Excel2007');";
+$gibbonSetting[] = "INSERT INTO `gibbonSetting` (`scope` ,`name` ,`nameDisplay` ,`description` ,`value`) VALUES ('Query Builder', 'rowLimit', 'Row Limit', 'Maximum number of rows displayed on screen, to avoid memory issues. Set to 0 for no limit.', '0');";
 
 // Action rows
 $actionRows[] = [

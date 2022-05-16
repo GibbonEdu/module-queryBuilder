@@ -1,5 +1,10 @@
 CHANGELOG
 =========
+v2.0.06
+-------
+Added Row Limit setting
+Added memory usage output below query
+
 v2.0.05
 --------
 Refactoring of linkTop divs

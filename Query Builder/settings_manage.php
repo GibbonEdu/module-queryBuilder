@@ -42,7 +42,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/settings_man
     $setting = $container->get(SettingGateway::class)->getSettingByScope('Query Builder', 'exportDefaultFileType', true);
     $row = $form->addRow();
         $row->addLabel($setting['name'], __($setting['nameDisplay']))->description($setting['description']);
-        $row->addSelect($setting['name'])->fromArray($fileTypes)->selected($setting['value']);
+        $row->addSelect($setting['name'])->fromArray($fileTypes)->selected($setting['value'])->required();
+
+    $setting = $container->get(SettingGateway::class)->getSettingByScope('Query Builder', 'rowLimit', true);
+    $row = $form->addRow();
+        $row->addLabel($setting['name'], __($setting['nameDisplay']))->description($setting['description']);
+        $row->addNumber($setting['name'])->setValue($setting['value'])->required()->decimalPlaces(0)->minimum(0);
 
     $row = $form->addRow();
         $row->addFooter();

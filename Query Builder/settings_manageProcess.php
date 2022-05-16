@@ -35,13 +35,14 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/settings_man
     $settingsToUpdate = [
         'Query Builder' => [
             'exportDefaultFileType',
+            'rowLimit',
         ]
     ];
 
     foreach ($settingsToUpdate as $scope => $settings) {
         foreach ($settings as $name) {
             $value = $_POST[$name] ?? null;
-            if (empty($value)) continue;
+            if (is_null($value)) continue;
 
             $updated = $settingGateway->updateSettingByScope($scope, $name, $value);
             $partialFail &= !$updated;

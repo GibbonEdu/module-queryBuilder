@@ -30,6 +30,7 @@ include '../../gibbon.php';
 
 //Increase memory limit
 ini_set('memory_limit','512M');
+ini_set('max_execution_time', 0);
 
 $queryBuilderQueryID = $_GET['queryBuilderQueryID'] ?? '';
 $hash = $_GET['hash'] ?? '';
@@ -49,7 +50,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
         $URL = $URL.'&return=error1';
         header("Location: {$URL}");
         exit;
-    } 
+    }
 
     $queryGateway = $container->get(QueryGateway::class);
 

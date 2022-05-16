@@ -395,3 +395,10 @@ $sql[$count][1] = "";
 ++$count;
 $sql[$count][0] = '2.0.05';
 $sql[$count][1] = "";
+
+//v2.0.06
+++$count;
+$sql[$count][0] = '2.0.06';
+$sql[$count][1] = "
+INSERT INTO `gibbonSetting` (`scope` ,`name` ,`nameDisplay` ,`description` ,`value`) VALUES ('Query Builder', 'rowLimit', 'Row Limit', 'Maximum number of rows displayed on screen, to avoid memory issues. Set to 0 for no limit.', '0');end
+";
