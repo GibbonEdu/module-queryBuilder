@@ -268,20 +268,24 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
             // Run the query
             $result = $pdo->select($query, $data);
 
+            if (!$pdo->getQuerySuccess()) {
+                echo Format::alert(__m('Your request failed with the following error: ').$pdo->getErrorMessage(), 'error');
+                return;
+            }
+
             // Check rowLimit setting
             $rowLimit = $container->get(SettingGateway::class)->getSettingByScope('Query Builder', 'rowLimit');
             $limited = ($rowLimit > 0 && $result->rowCount() > $rowLimit) ? true : false ;
-            $rows = ($limited) ? $rowLimit : $result->columnCount();
+            $rows = ($limited) ? $rowLimit : $result->rowCount();
 
-            if (!$pdo->getQuerySuccess()) {
-                echo '<div class="error">'.__m('Your request failed with the following error: ').$pdo->getErrorMessage().'</div>';
-            } else if ($result->rowCount() < 1) {
-                echo '<div class="warning">'.__m('Your query has returned 0 rows.').'</div>';
+            if ($rows < 1) {
+                echo Format::alert(__m('Your query has returned 0 rows.'), 'warning');
+                return;
             } else {
-                echo '<div class="success">'.sprintf(__m('Your query has returned %1$s rows, which are displayed below.'), $result->rowCount()).'</div>';
-
                 if ($limited) {
-                    echo '<div class="warning">'.sprintf(__m('The output of your query was limited to %1$s rows to reduce memory usage. All rows will be included in the export.'), $rowLimit).'</div>';
+                    echo Format::alert(sprintf(__m('The output of your query was limited to %1$s rows to reduce memory usage. All rows will be included in the export.'), $rowLimit), 'warning');
+                } else {
+                    echo Format::alert(sprintf(__m('Your query has returned %1$s rows, which are displayed below.'), $result->rowCount()), 'success');
                 }
 
                 $invalidColumns = ['password', 'passwordStrong', 'passwordStrongSalt', 'gibbonStaffContract', 'gibbonStaffApplicationForm', 'gibbonStaffApplicationFormFile'];
@@ -336,7 +340,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
                 echo '</div>';
             }
 
-            echo '<div class="message">'.sprintf(__m('This query used %1$sMB of memory.'), (round(memory_get_peak_usage()/(1024*1024),2))).'</div>';
+            echo Format::alert(sprintf(__m('This query used %1$sMB of memory.'), (round(memory_get_peak_usage()/(1024*1024),2))), 'message');
         }
     }
 
