@@ -312,7 +312,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
                     return '<span class="subdued">'.$count++.'</span>';
                 });
 
-                for ($i = 0; $i < $rows; ++$i) {
+                for ($i = 0; $i < $result->columnCount(); ++$i) {
                     $col = $result->getColumnMeta($i);
                     $colName = $col['name'];
                     if (!in_array($colName, $invalidColumns)) {
