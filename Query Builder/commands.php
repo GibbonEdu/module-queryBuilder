@@ -100,24 +100,30 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands.php
         ->format(function ($query, $actions) use ($highestAction, $session) {
 
             if ($highestAction == 'Manage Commands_viewEditAll') {
-                if (($query['type'] == 'Personal' && $query['gibbonPersonID'] == $session->get('gibbonPersonID')) || $query['type'] == 'School') {
+                if (($query['type'] == 'Personal' && $query['gibbonPersonID'] == $session->get('gibbonPersonID')) || $query['type'] == 'School' || $query['type'] == 'gibbonedu.com') {
                     $actions->addAction('edit', __('Edit'))
                         ->setURL('/modules/Query Builder/commands_edit.php')
                         ->addParam('sidebar', 'false');
+                }
 
+                if (($query['type'] == 'Personal' && $query['gibbonPersonID'] == $session->get('gibbonPersonID')) || $query['type'] == 'School') {
                     $actions->addAction('delete', __('Delete'))
                         ->setURL('/modules/Query Builder/commands_delete.php');
                 }
 
-                $actions->addAction('duplicate', __('Duplicate'))
-                    ->setURL('/modules/Query Builder/commands_duplicate.php')
-                    ->setIcon('copy');
+                if ($query['active'] == 'Y') {
+                    $actions->addAction('duplicate', __('Duplicate'))
+                        ->setURL('/modules/Query Builder/commands_duplicate.php')
+                        ->setIcon('copy');
+                }
             }
 
-            $actions->addAction('run', __m('Run Command'))
-                ->setURL('/modules/Query Builder/commands_run.php')
-                ->addParam('sidebar', 'false')
-                ->setIcon('run');
+            if ($query['active'] == 'Y') {
+                $actions->addAction('run', __m('Run Command'))
+                    ->setURL('/modules/Query Builder/commands_run.php')
+                    ->addParam('sidebar', 'false')
+                    ->setIcon('run');
+            }
         });
 
     echo $table->render($queries);

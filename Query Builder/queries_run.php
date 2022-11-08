@@ -85,6 +85,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
         }
     }
 
+    // Check for inactive
+    if ($values['active'] != 'Y') {
+        $page->addError(__('The specified record cannot be found.'));
+        return;
+    }
+
     if ($search != '') {
         $params = [
             "search" => $search
@@ -126,7 +132,10 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
 
     $table->addColumn('name', __('Name'));
     $table->addColumn('category', __('Category'));
-    $table->addColumn('active', __('Active'));
+    $table->addColumn('active', __('Active'))
+        ->format(function($query) {
+            return Format::yesNo($query['active']);
+        });
     $table->addColumn('description', __('Description'))->addClass('col-span-3');
 
     if (!empty($values['actionName'])) {

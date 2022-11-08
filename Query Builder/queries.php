@@ -109,7 +109,7 @@ if (isModuleAccessible($guid, $connection2) == false) {
     echo $form->getOutput();
 
     // QUERY
-    $queries = $queryGateway->queryQueries($criteria, $session->get('gibbonPersonID'));
+    $queries = $queryGateway->queryQueries($criteria, $session->get('gibbonPersonID'), 'Query');
 
     $table = DataTable::createPaginated('queriesManage', $criteria);
     $table->setTitle(__m('Queries'));
@@ -147,24 +147,28 @@ if (isModuleAccessible($guid, $connection2) == false) {
         ->format(function ($query, $actions) use ($highestAction, $session) {
 
             if ($highestAction == 'Manage Queries_viewEditAll') {
-                if (($query['type'] == 'Personal' && $query['gibbonPersonID'] == $session->get('gibbonPersonID')) || $query['type'] == 'School') {
+                if (($query['type'] == 'Personal' && $query['gibbonPersonID'] == $session->get('gibbonPersonID')) || $query['type'] == 'School' || $query['type'] == 'gibbonedu.com') {
                     $actions->addAction('edit', __('Edit'))
                         ->setURL('/modules/Query Builder/queries_edit.php')
                         ->addParam('sidebar', 'false');
-
+                }
+                if (($query['type'] == 'Personal' && $query['gibbonPersonID'] == $session->get('gibbonPersonID')) || $query['type'] == 'School') {
                     $actions->addAction('delete', __('Delete'))
                         ->setURL('/modules/Query Builder/queries_delete.php');
                 }
-
-                $actions->addAction('duplicate', __('Duplicate'))
-                    ->setURL('/modules/Query Builder/queries_duplicate.php')
-                    ->setIcon('copy');
+                if ($query['active'] == 'Y') {
+                    $actions->addAction('duplicate', __('Duplicate'))
+                        ->setURL('/modules/Query Builder/queries_duplicate.php')
+                        ->setIcon('copy');
+                }
             }
 
-            $actions->addAction('run', __m('Run Query'))
-                ->setURL('/modules/Query Builder/queries_run.php')
-                ->addParam('sidebar', 'false')
-                ->setIcon('run');
+            if ($query['active'] == 'Y') {
+                $actions->addAction('run', __m('Run Query'))
+                    ->setURL('/modules/Query Builder/queries_run.php')
+                    ->addParam('sidebar', 'false')
+                    ->setIcon('run');
+            }
         });
 
     echo $table->render($queries);

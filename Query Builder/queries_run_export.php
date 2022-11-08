@@ -84,6 +84,13 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
         }
     }
 
+    // Check for inactive
+    if ($values['active'] != 'Y') {
+        $URL = $URL.'&return=error1';
+        header("Location: {$URL}");
+        exit;
+    }
+
     // Run the query
     $result = $pdo->select($query, $queryData);
 

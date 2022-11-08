@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+v2.0.09
+-------
+Added ability to disabled gibbonedu.com queries and commands
+
 v2.0.08
 -------
 Fix column count limited by row count

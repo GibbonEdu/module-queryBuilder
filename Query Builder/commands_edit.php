@@ -101,35 +101,41 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_edi
 
     $row = $form->addRow();
         $row->addLabel('name', __('Name'));
-        $row->addTextField('name')->maxLength(255)->required();
-
-    $categories = $queryGateway->selectCategoriesByPerson($session->get('gibbonPersonID'))->fetchAll(\PDO::FETCH_COLUMN, 0);
-    $row = $form->addRow();
-        $row->addLabel('category', __('Category'));
-        $row->addTextField('category')->required()->maxLength(100)->autocomplete($categories);
+        if ($values['type'] == "gibbonedu.com") {
+            $row->addTextField('name')->maxLength(255)->required()->readonly();
+        } else {
+            $row->addTextField('name')->maxLength(255)->required();
+        }
 
     $row = $form->addRow();
         $row->addLabel('active', __('Active'));
         $row->addYesNo('active')->required();
 
-    $actions = $queryGateway->selectActionListByPerson($session->get('gibbonPersonID'));
-    $row = $form->addRow();
-        $row->addLabel('moduleActionName', __m('Limit Access'))->description(__m('Only people with the selected permission can run this query.'));
-        $row->addSelect('moduleActionName')->fromResults($actions, 'groupBy')->required()->placeholder()->selected($values['moduleName'].':'.$values['actionName']);
+    if ($values['type'] != "gibbonedu.com") {
+        $categories = $queryGateway->selectCategoriesByPerson($session->get('gibbonPersonID'))->fetchAll(\PDO::FETCH_COLUMN, 0);
+        $row = $form->addRow();
+            $row->addLabel('category', __('Category'));
+            $row->addTextField('category')->required()->maxLength(100)->autocomplete($categories);
 
-    $row = $form->addRow();
-        $row->addLabel('description', __('Description'));
-        $row->addTextArea('description')->setRows(8);
+        $actions = $queryGateway->selectActionListByPerson($session->get('gibbonPersonID'));
+        $row = $form->addRow();
+            $row->addLabel('moduleActionName', __m('Limit Access'))->description(__m('Only people with the selected permission can run this query.'));
+            $row->addSelect('moduleActionName')->fromResults($actions, 'groupBy')->required()->placeholder()->selected($values['moduleName'].':'.$values['actionName']);
 
-    $col = $form->addRow()->addColumn();
-        $col->addLabel('query', __m('Command'));
-        $col->addCodeEditor('query')
-            ->setMode('mysql')
-            ->autocomplete($queryGateway->getAutocompletions())
-            ->required();
+        $row = $form->addRow();
+            $row->addLabel('description', __('Description'));
+            $row->addTextArea('description')->setRows(8);
 
-    $bindValues = new BindValues($form->getFactory(), 'bindValues', $values, $session);
-    $form->addRow()->addElement($bindValues);
+        $col = $form->addRow()->addColumn();
+            $col->addLabel('query', __m('Command'));
+            $col->addCodeEditor('query')
+                ->setMode('mysql')
+                ->autocomplete($queryGateway->getAutocompletions())
+                ->required();
+
+        $bindValues = new BindValues($form->getFactory(), 'bindValues', $values, $session);
+        $form->addRow()->addElement($bindValues);
+    }
 
     $row = $form->addRow();
         $row->addFooter();

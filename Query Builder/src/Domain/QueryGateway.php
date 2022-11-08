@@ -51,14 +51,14 @@ class QueryGateway extends QueryableGateway
                 'queryBuilderQuery.queryBuilderQueryID', 'name', 'type', 'category', 'active', 'queryBuilderQuery.gibbonPersonID', 'queryID', 'queryBuilderQuery.actionName', 'queryBuilderQuery.moduleName', 'permission.permissionID', '(CASE WHEN queryBuilderFavourite.queryBuilderFavouriteID IS NOT NULL THEN 0 ELSE 1 END) as favouriteOrder',
             ])
             ->from($this->getTableName())
-            ->joinSubSelect(                     
-                'LEFT',                     
+            ->joinSubSelect(
+                'LEFT',
                 'SELECT gibbonPermission.permissionID, gibbonRole.gibbonRoleID, gibbonAction.name as actionName, gibbonModule.name as moduleName
                 FROM gibbonModule
-                JOIN gibbonAction ON (gibbonModule.gibbonModuleID=gibbonAction.gibbonModuleID) 
+                JOIN gibbonAction ON (gibbonModule.gibbonModuleID=gibbonAction.gibbonModuleID)
                 JOIN gibbonPermission ON (gibbonPermission.gibbonActionID=gibbonAction.gibbonActionID)
-                JOIN gibbonRole ON (gibbonRole.gibbonRoleID=gibbonPermission.gibbonRoleID)',                  
-                'permission',                   
+                JOIN gibbonRole ON (gibbonRole.gibbonRoleID=gibbonPermission.gibbonRoleID)',
+                'permission',
                 "(permission.actionName=queryBuilderQuery.actionName OR permission.actionName LIKE CONCAT(queryBuilderQuery.actionName, '_%')) AND permission.moduleName=queryBuilderQuery.moduleName AND FIND_IN_SET(permission.gibbonRoleID, :gibbonRoleIDAll)"
             )
             ->leftJoin('queryBuilderFavourite', '(queryBuilderFavourite.queryBuilderQueryID=queryBuilderQuery.queryBuilderQueryID AND queryBuilderFavourite.gibbonPersonID=:gibbonPersonID)')
@@ -93,23 +93,23 @@ class QueryGateway extends QueryableGateway
     {
         $data = ['gibbonPersonID' => $gibbonPersonID];
         $sql = "(
-            SELECT gibbonModule.name as groupBy, CONCAT(gibbonModule.name, ':', SUBSTRING_INDEX(gibbonAction.name, '_', 1)) as value, CONCAT(SUBSTRING_INDEX(gibbonAction.name, '_', 1), ' (grouped)') as name 
+            SELECT gibbonModule.name as groupBy, CONCAT(gibbonModule.name, ':', SUBSTRING_INDEX(gibbonAction.name, '_', 1)) as value, CONCAT(SUBSTRING_INDEX(gibbonAction.name, '_', 1), ' (grouped)') as name
                 FROM gibbonPerson
                 JOIN gibbonRole ON (gibbonPerson.gibbonRoleIDPrimary=gibbonRole.gibbonRoleID OR FIND_IN_SET(gibbonRole.gibbonRoleID, gibbonPerson.gibbonRoleIDAll))
                 JOIN gibbonPermission ON (gibbonRole.gibbonRoleID=gibbonPermission.gibbonRoleID)
                 JOIN gibbonAction ON (gibbonPermission.gibbonActionID=gibbonAction.gibbonActionID)
-                JOIN gibbonModule ON (gibbonModule.gibbonModuleID=gibbonAction.gibbonModuleID) 
+                JOIN gibbonModule ON (gibbonModule.gibbonModuleID=gibbonAction.gibbonModuleID)
                 WHERE gibbonPerson.gibbonPersonID=:gibbonPersonID
                 AND gibbonAction.name LIKE '%\_%'
             ) UNION ALL (
-                SELECT gibbonModule.name as groupBy, CONCAT(gibbonModule.name, ':', gibbonAction.name) as value, gibbonAction.name as name 
+                SELECT gibbonModule.name as groupBy, CONCAT(gibbonModule.name, ':', gibbonAction.name) as value, gibbonAction.name as name
                 FROM gibbonPerson
                 JOIN gibbonRole ON (gibbonPerson.gibbonRoleIDPrimary=gibbonRole.gibbonRoleID OR FIND_IN_SET(gibbonRole.gibbonRoleID, gibbonPerson.gibbonRoleIDAll))
                 JOIN gibbonPermission ON (gibbonRole.gibbonRoleID=gibbonPermission.gibbonRoleID)
                 JOIN gibbonAction ON (gibbonPermission.gibbonActionID=gibbonAction.gibbonActionID)
-                JOIN gibbonModule ON (gibbonModule.gibbonModuleID=gibbonAction.gibbonModuleID) 
+                JOIN gibbonModule ON (gibbonModule.gibbonModuleID=gibbonAction.gibbonModuleID)
                 WHERE gibbonPerson.gibbonPersonID=:gibbonPersonID
-                
+
             ) ORDER BY groupBy, name" ;
 
         return $this->db()->select($sql, $data);
@@ -122,14 +122,14 @@ class QueryGateway extends QueryableGateway
 
         return $this->db()->select($sql, $data);
     }
-    
+
     public function getQueryByPerson($queryBuilderQueryID, $gibbonPersonID, $editing = false, $active = false)
     {
         $data = ['queryBuilderQueryID' => $queryBuilderQueryID, 'gibbonPersonID' => $gibbonPersonID];
         $sql = "SELECT * FROM queryBuilderQuery WHERE queryBuilderQueryID=:queryBuilderQueryID ";
 
         if ($editing) {
-            $sql .= "AND NOT type='gibbonedu.com' AND (type='School' OR (type='Personal' AND gibbonPersonID=:gibbonPersonID) )";
+            $sql .= "AND (type='gibbonedu.com' OR type='School' OR (type='Personal' AND gibbonPersonID=:gibbonPersonID) )";
         } else {
             $sql .= "AND (type='gibbonedu.com' OR type='School' OR (type='Personal' AND gibbonPersonID=:gibbonPersonID) )";
         }
@@ -144,10 +144,10 @@ class QueryGateway extends QueryableGateway
     public function getIsQueryAccessible($queryBuilderQueryID, $gibbonPersonID)
     {
         $data = ['queryBuilderQueryID' => $queryBuilderQueryID, 'gibbonPersonID' => $gibbonPersonID];
-        $sql = "SELECT gibbonModule.name as groupBy, CONCAT(gibbonModule.name, ':', gibbonAction.name) as value, gibbonAction.name as name 
+        $sql = "SELECT gibbonModule.name as groupBy, CONCAT(gibbonModule.name, ':', gibbonAction.name) as value, gibbonAction.name as name
                 FROM queryBuilderQuery
-                JOIN gibbonModule ON (gibbonModule.name=queryBuilderQuery.moduleName) 
-                JOIN gibbonAction ON ((gibbonAction.name=queryBuilderQuery.actionName OR gibbonAction.name LIKE CONCAT(queryBuilderQuery.actionName, '_%')) AND gibbonAction.gibbonModuleID=gibbonModule.gibbonModuleID) 
+                JOIN gibbonModule ON (gibbonModule.name=queryBuilderQuery.moduleName)
+                JOIN gibbonAction ON ((gibbonAction.name=queryBuilderQuery.actionName OR gibbonAction.name LIKE CONCAT(queryBuilderQuery.actionName, '_%')) AND gibbonAction.gibbonModuleID=gibbonModule.gibbonModuleID)
                 JOIN gibbonPermission ON (gibbonPermission.gibbonActionID=gibbonAction.gibbonActionID)
                 JOIN gibbonPerson ON (FIND_IN_SET(gibbonPermission.gibbonRoleID, gibbonPerson.gibbonRoleIDAll))
                 WHERE queryBuilderQuery.queryBuilderQueryID=:queryBuilderQueryID
@@ -193,7 +193,7 @@ class QueryGateway extends QueryableGateway
     public function getAutocompletions()
     {
         $databaseName = $this->db()->selectOne('select database()');
-        
+
         $fields = [];
         $tables = $this->db()->select("SHOW TABLES")->fetchAll();
 
@@ -201,7 +201,7 @@ class QueryGateway extends QueryableGateway
             $tableName = $table['Tables_in_'.$databaseName];
             $tableFields = $this->db()->select("SHOW COLUMNS FROM ".$table['Tables_in_'.$databaseName])->fetchAll();
             $fields[] = $tableName;
-            
+
             foreach ($tableFields as $field) {
                 $fields[] = $tableName.'.'.$field['Field'];
             }

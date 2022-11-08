@@ -69,14 +69,14 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_add.
         $row->addLabel('name', __('Name'));
         $row->addTextField('name')->maxLength(255)->required();
 
+    $row = $form->addRow();
+        $row->addLabel('active', __('Active'));
+        $row->addYesNo('active')->required();
+
     $categories = $queryGateway->selectCategoriesByPerson($session->get('gibbonPersonID'))->fetchAll(\PDO::FETCH_COLUMN, 0);
     $row = $form->addRow();
         $row->addLabel('category', __('Category'));
         $row->addTextField('category')->required()->maxLength(100)->autocomplete($categories);
-
-    $row = $form->addRow();
-        $row->addLabel('active', __('Active'));
-        $row->addYesNo('active')->required();
 
     $actions = $queryGateway->selectActionListByPerson($session->get('gibbonPersonID'));
     $row = $form->addRow();

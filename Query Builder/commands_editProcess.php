@@ -33,19 +33,26 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_edi
 } else {
     // Proceed!
     $queryGateway = $container->get(QueryGateway::class);
+    $values = $queryGateway->getByID($queryBuilderQueryID);
 
     list($moduleName, $actionName) = !empty($_POST['moduleActionName']) ? explode(':', $_POST['moduleActionName']) : [null, null];
 
-    $data = [
-        'name'        => $_POST['name'] ?? '',
-        'category'    => $_POST['category'] ?? '',
-        'moduleName'  => $moduleName ?? null,
-        'actionName'  => $actionName ?? null,
-        'active'      => $_POST['active'] ?? 'Y',
-        'description' => $_POST['description'] ?? '',
-        'query'       => $_POST['query'] ?? '',
-        'bindValues'  => $_POST['bindValues'] ?? [],
-    ];
+    if ($values['type'] == "gibbonedu.com") {
+        $data = [
+            'active'      => $_POST['active'] ?? 'Y',
+        ];
+    } else {
+        $data = [
+            'name'        => $_POST['name'] ?? '',
+            'category'    => $_POST['category'] ?? '',
+            'moduleName'  => $moduleName ?? null,
+            'actionName'  => $actionName ?? null,
+            'active'      => $_POST['active'] ?? 'Y',
+            'description' => $_POST['description'] ?? '',
+            'query'       => $_POST['query'] ?? '',
+            'bindValues'  => $_POST['bindValues'] ?? [],
+        ];
+    }
 
     // Sort and jsonify bindValues
     if (!empty($data['bindValues']) && is_array($data['bindValues'])) {
@@ -55,14 +62,21 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_edi
     }
 
     // Validate the required values are present
-    if (empty($queryBuilderQueryID) || empty($data['name']) || empty($data['category']) || empty($data['active']) || empty($data['query'])) {
-        $URL .= '&return=error1';
-        header("Location: {$URL}");
-        exit;
+    if ($values['type'] == "gibbonedu.com") {
+        if (empty($queryBuilderQueryID) || empty($data['active'])) {
+            $URL .= '&return=error1';
+            header("Location: {$URL}");
+            exit;
+        }
+    } else {
+        if (empty($queryBuilderQueryID) || empty($data['name']) || empty($data['category']) || empty($data['active']) || empty($data['query'])) {
+            $URL .= '&return=error1';
+            header("Location: {$URL}");
+            exit;
+        }
     }
 
     // Validate the database relationships exist
-    $values = $queryGateway->getByID($queryBuilderQueryID);
     if (empty($values)) {
         $URL .= '&return=error2';
         header("Location: {$URL}");
@@ -70,7 +84,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_edi
     }
 
     // Validate this user has access to this query
-    if ($values['type'] == 'gibbonedu.com' || ($values['Personal'] && $values['gibbonPersonID'] != $session->get('gibbonPersonID'))) {
+    if (($values['Personal'] && $values['gibbonPersonID'] != $session->get('gibbonPersonID'))) {
         $URL .= '&return=error0';
         header("Location: {$URL}");
         exit;
