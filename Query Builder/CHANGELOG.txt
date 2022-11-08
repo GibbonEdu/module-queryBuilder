@@ -2,7 +2,7 @@ CHANGELOG
 =========
 v2.0.09
 -------
-Added ability to disabled gibbonedu.com queries and commands
+Added ability to set gibbonedu.com queries and commands to inactive
 
 v2.0.08
 -------
