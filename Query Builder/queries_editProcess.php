@@ -84,7 +84,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit
     }
 
     // Validate this user has access to this query
-    if (($values['Personal'] && $values['gibbonPersonID'] != $session->get('gibbonPersonID'))) {
+    if ($values['type'] == 'Personal' && $values['gibbonPersonID'] != $session->get('gibbonPersonID')) {
         $URL .= '&return=error0';
         header("Location: {$URL}");
         exit;
