@@ -317,7 +317,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
                     ->displayLabel();
 
                 $count = 1;
-                $table->addColumn('count', '')->width('35px')->format(function($row) use (&$count) {
+                $table->addColumn('rowCount-NNK0u7G5', '')->width('35px')->format(function($row) use (&$count) {
                     return '<span class="subdued">'.$count++.'</span>';
                 });
 

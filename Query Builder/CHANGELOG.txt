@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+v2.0.11
+-------
+Adjusted query execution to allow "count" as a column name
+
 v2.0.10
 -------
 Fixed access check when editing Personal queries
