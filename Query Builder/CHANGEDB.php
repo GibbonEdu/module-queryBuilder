@@ -427,3 +427,10 @@ $sql[$count][1] = "";
 ++$count;
 $sql[$count][0] = '2.0.11';
 $sql[$count][1] = "";
+
+//v2.1.00
+++$count;
+$sql[$count][0] = '2.1.00';
+$sql[$count][1] = "
+UPDATE gibbonModule SET author='Gibbon Foundation', url='https://gibbonedu.org' WHERE name='Query Builder';end
+";

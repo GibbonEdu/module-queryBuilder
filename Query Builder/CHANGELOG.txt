@@ -1,5 +1,9 @@
 CHANGELOG
 =========
+v2.1.00
+-------
+Transferred ownership from Ross Parker to Gibbon Foundation
+
 v2.0.11
 -------
 Adjusted query execution to allow "count" as a column name
