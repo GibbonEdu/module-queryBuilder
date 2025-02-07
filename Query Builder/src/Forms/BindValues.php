@@ -33,6 +33,7 @@ class BindValues extends Column
 {
     protected $factory;
     protected $values;
+    protected $session;
 
     public function __construct($factory, $name, $values, $session)
     {

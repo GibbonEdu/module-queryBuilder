@@ -222,16 +222,17 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_run
 
     $row = $form->addRow();
 
-        $col = $row->addColumn()->addClass('inline right text-right');
         if ($highestAction == 'Manage Commands_viewEditAll' && (($values['type'] == 'Personal' and $values['gibbonPersonID'] == $session->get('gibbonPersonID')) or $values['type'] == 'School')) {
-            $col->addCheckbox('save')->description(__m('Save Command?'))->setValue('Y')->checked($save)->wrap('<span class="displayInlineBlock">', '</span>&nbsp;&nbsp;');
+            $row->addCheckbox('save')->description(__m('Save Command?'))->setValue('Y')->checked($save)->wrap('<span class="inline-block">', '</span>&nbsp;&nbsp;');
         } else {
-            $col->addContent('');
+            $row->addContent(' ');
         }
 
         $form->addHiddenValue('dryRunOnly', 'N');
 
-        $col->addSubmit(__m('Run Command'))->prepend(sprintf('<input type="button" value="%s" onclick="dryrun()">',__('Dry Run')));
+        $buttons = $row->addColumn()->setClass('flex justify-end gap-4 text-right');
+        $buttons->addButton(__('Dry Run'))->onClick('dryrun()')->addClass('px-8');
+        $buttons->addSubmit(__m('Run Command'));
 
     echo $form->getOutput();
 

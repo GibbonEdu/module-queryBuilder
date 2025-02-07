@@ -79,7 +79,6 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit
     $form->addHeaderAction('help', __m('Help'))
         ->setURL('/modules/Query Builder/queries_help_full.php')
         ->setIcon('help')
-        ->addClass('underline')
         ->displayLabel()
         ->modalWindow();
 
@@ -90,8 +89,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_edit
             ->addParam('queryBuilderQueryID', $queryBuilderQueryID)
             ->addParam('sidebar', 'false')
             ->setIcon('run')
-            ->displayLabel()
-            ->prepend(" | ");
+            ->displayLabel();
     }
 
     $row = $form->addRow();

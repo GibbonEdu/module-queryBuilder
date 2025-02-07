@@ -27,7 +27,7 @@ $description = 'A module to provide SQL queries for pulling data out of Gibbon a
 $entryURL = 'queries.php';
 $type = 'Additional';
 $category = 'Admin';
-$version = '2.1.02';
+$version = '2.2.00';
 $author = "Gibbon Foundation";
 $url = "https://gibbonedu.org";
 

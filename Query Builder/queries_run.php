@@ -106,7 +106,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
 
     $table->addHeaderAction('favourite', empty($favourite) ? __m('Favourite') : __m('Unfavourite'))
         ->setURL('/modules/Query Builder/queries_favouriteProcess.php')
-        ->setIcon('gift')
+        ->setIcon(empty($favourite) ? 'bookmark' : 'unbookmark')
         ->addParam('search', $search)
         ->addParam('queryBuilderQueryID', $queryBuilderQueryID)
         ->displayLabel();
@@ -115,10 +115,8 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
         $table->addHeaderAction('help', __m('Help'))
             ->setURL('/modules/Query Builder/queries_help_full.php')
             ->setIcon('help')
-            ->addClass('underline')
             ->displayLabel()
-            ->modalWindow()
-            ->prepend(" | ");
+            ->modalWindow();
 
         if ($values['type'] != 'gibbonedu.com') {
             $table->addHeaderAction('edit', __m('Edit Query'))
@@ -127,8 +125,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
                 ->addParam('queryBuilderQueryID', $queryBuilderQueryID)
                 ->addParam('sidebar', 'false')
                 ->setIcon('config')
-                ->displayLabel()
-                ->prepend(" | ");
+                ->displayLabel();
         }
     }
 
@@ -219,10 +216,9 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
     }
 
     $row = $form->addRow();
-        $row->addFooter();
         $col = $row->addColumn()->addClass('inline right');
         if ($highestAction == 'Manage Queries_viewEditAll' && (($values['type'] == 'Personal' and $values['gibbonPersonID'] == $session->get('gibbonPersonID')) or $values['type'] == 'School')) {
-            $col->addCheckbox('save')->description(__m('Save Query?'))->setValue('Y')->checked($save)->wrap('<span class="displayInlineBlock">', '</span>&nbsp;&nbsp;');
+            $col->addCheckbox('save')->description(__m('Save Query?'))->setValue('Y')->checked($save)->wrap('<span class="inline-block">', '</span>&nbsp;&nbsp;');
         } else {
             $col->addContent('');
         }

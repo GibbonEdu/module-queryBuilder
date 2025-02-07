@@ -97,7 +97,7 @@ if (isModuleAccessible($guid, $connection2) == false) {
 
     $form = Form::create('search', $session->get('absoluteURL').'/index.php', 'get');
     $form->setTitle(__('Search'));
-    $form->setClass('noIntBorder fullWidth');
+    $form->setClass('noIntBorder w-full');
 
     $form->addHiddenValue('q', '/modules/'.$session->get('module').'/queries.php');
 
@@ -148,29 +148,33 @@ if (isModuleAccessible($guid, $connection2) == false) {
         ->addParam('search', $criteria->getSearchText(true))
         ->format(function ($query, $actions) use ($highestAction, $session) {
 
-            if ($highestAction == 'Manage Queries_viewEditAll') {
-                if (($query['type'] == 'Personal' && $query['gibbonPersonID'] == $session->get('gibbonPersonID')) || $query['type'] == 'School' || $query['type'] == 'gibbonedu.com') {
-                    $actions->addAction('edit', __('Edit'))
-                        ->setURL('/modules/Query Builder/queries_edit.php')
-                        ->addParam('sidebar', 'false');
-                }
-                if (($query['type'] == 'Personal' && $query['gibbonPersonID'] == $session->get('gibbonPersonID')) || $query['type'] == 'School') {
-                    $actions->addAction('delete', __('Delete'))
-                        ->setURL('/modules/Query Builder/queries_delete.php');
-                }
-                if ($query['active'] == 'Y') {
-                    $actions->addAction('duplicate', __('Duplicate'))
-                        ->setURL('/modules/Query Builder/queries_duplicate.php')
-                        ->setIcon('copy');
-                }
-            }
-
             if ($query['active'] == 'Y') {
                 $actions->addAction('run', __m('Run Query'))
                     ->setURL('/modules/Query Builder/queries_run.php')
                     ->addParam('sidebar', 'false')
                     ->setIcon('run');
             }
+            
+            if ($highestAction == 'Manage Queries_viewEditAll') {
+                if (($query['type'] == 'Personal' && $query['gibbonPersonID'] == $session->get('gibbonPersonID')) || $query['type'] == 'School' || $query['type'] == 'gibbonedu.com') {
+                    $actions->addAction('edit', __('Edit'))
+                        ->setURL('/modules/Query Builder/queries_edit.php')
+                        ->addParam('sidebar', 'false');
+                }
+                
+                if ($query['active'] == 'Y') {
+                    $actions->addAction('duplicate', __('Duplicate'))
+                        ->setURL('/modules/Query Builder/queries_duplicate.php')
+                        ->setIcon('copy');
+                }
+
+                if (($query['type'] == 'Personal' && $query['gibbonPersonID'] == $session->get('gibbonPersonID')) || $query['type'] == 'School') {
+                    $actions->addAction('delete', __('Delete'))
+                        ->setURL('/modules/Query Builder/queries_delete.php');
+                }
+            }
+
+            
         });
 
     echo $table->render($queries);
