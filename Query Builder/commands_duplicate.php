@@ -80,7 +80,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/commands_dup
     $form->addHiddenValue('address', $session->get('address'));
 
     $row = $form->addRow();
-        $row->addLabel('name', __('New Name'));
+        $row->addLabel('name', __m('New Name'));
         $row->addTextField('name')->maxLength(255)->required()->loadFrom($values);
 
     $types = [
