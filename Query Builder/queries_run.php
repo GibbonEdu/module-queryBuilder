@@ -216,12 +216,12 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
     }
 
     $row = $form->addRow();
-        $col = $row->addColumn()->addClass('inline right');
         if ($highestAction == 'Manage Queries_viewEditAll' && (($values['type'] == 'Personal' and $values['gibbonPersonID'] == $session->get('gibbonPersonID')) or $values['type'] == 'School')) {
-            $col->addCheckbox('save')->description(__m('Save Query?'))->setValue('Y')->checked($save)->wrap('<span class="inline-block">', '</span>&nbsp;&nbsp;');
+            $row->addCheckbox('save')->description(__m('Save Query?'))->setValue('Y')->checked($save)->wrap('<span class="inline-block">', '</span>&nbsp;&nbsp;');
         } else {
-            $col->addContent('');
+            $row->addContent('');
         }
+        $col = $row->addColumn()->setClass('flex justify-end gap-4 text-right');
         $col->addSubmit(__('Run Query'));
 
     echo $form->getOutput();
