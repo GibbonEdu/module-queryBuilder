@@ -31,7 +31,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_sync
         ->add(__m('Sync Queries'));
 
     echo '<p>';
-    echo __m('This page will automatically attempt to sync queries from the gibbonedu.com Query Builder valued added service. The results of the sync will be given below.');
+    echo __m('This page will automatically attempt to sync queries from the gibbonedu.com Query Builder service. The results of the sync will be given below.');
     echo '<p>';
 
 	$settingGateway = $container->get(SettingGateway::class);
@@ -54,11 +54,11 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_sync
 				success: function(data) {
 					if (data['access']==='0') {
 						$("#status").attr("class","error");
-						$("#status").html('Checking gibbonedu.com for a license to access value added Query Builder shows that you do not have access. You have either not set up access, or your access has expired or is invalid. Visit <a target=\'_blank\' href=\'http://gibbonedu.com\'>http://gibbonedu.com</a> to register for value added services, and then enter the name and key provided, or email <a href=\'mailto:support@gibbonedu.com\'>support@gibbonedu.com</a> to seek support as to why your key is not working. You may still use your own queries without a valid license.') ;
+						$("#status").html('Checking gibbonedu.com for a Catalyst License to access Query Builder shows that you do not have access. You have either not set up access, or your access has expired or is invalid. Visit <a target=\'_blank\' href=\'http://gibbonedu.com\'>http://gibbonedu.com</a> to register and then enter the name and key provided, or email <a href=\'mailto:support@gibbonedu.com\'>support@gibbonedu.com</a> to seek support as to why your key is not working. You may still use your own queries without a valid license.') ;
 					}
 					else {
 						$("#status").attr("class","success");
-						$("#status").html('Success! Your system has a valid license to access value added Query Builder queries from gibbonedu.com. We are now syncing your queries. Watch here for results.') ;
+						$("#status").html('Success! Your system has a valid Catalyst License to access Query Builder queries from gibbonedu.com. We are now syncing your queries. Watch here for results.') ;
 						$.ajax({
 							type: "POST",
             				url: "<?php echo $session->get('absoluteURL') ?>/modules/Query Builder/queries_gibboneducom_sync_ajax.php",
@@ -82,7 +82,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_sync
 				},
 				error: function (data, textStatus, errorThrown) {
 					$("#status").attr("class","error");
-					$("#status").html('Checking gibbonedu.com license for access to value added Query Builder queries has failed. You may still use your own queries.') ;
+					$("#status").html('Checking gibbonedu.com Catalyst License for access to Query Builder queries has failed. You may still use your own queries.') ;
 					$.ajax({
 						url: "<?php echo $session->get('absoluteURL') ?>/modules/Query Builder/queries_gibboneducom_remove_ajax.php",
 						data: "gibboneduComOrganisationName=<?php echo urlencode($gibboneduComOrganisationName) ?>&gibboneduComOrganisationKey=<?php echo $gibboneduComOrganisationKey ?>&service=queryBuilder"
@@ -96,7 +96,7 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_sync
     echo "<div id='status' class='warning'>";
     echo "<div style='width: 100%; text-align: center'>";
     echo "<img style='margin: 10px 0 5px 0' src='".$session->get('absoluteURL')."/themes/Default/img/loading.gif' alt='Loading'/><br/>";
-    echo __m('Checking gibbonedu.com value added license status.');
+    echo __m('Checking gibbonedu.com for Catalyst License status.');
     echo '</div>';
     echo '</div>';
 }

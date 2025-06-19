@@ -5,6 +5,7 @@ v2.2.01
 Fixed bug to align the Run Query button
 Added the missing /* in the Help page
 Replaced $gibbon->session to $session
+Updated from Value Added License to Catalyst License
 
 v2.2.00
 -------
