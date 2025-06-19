@@ -1,5 +1,11 @@
 CHANGELOG
 =========
+v2.2.01
+-------
+Fixed bug to align the Run Query button
+Added the missing /* in the Help page
+Replaced $gibbon->session to $session
+
 v2.2.00
 -------
 Gibbon v28 Compatibility
