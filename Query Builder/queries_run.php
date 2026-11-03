@@ -54,9 +54,9 @@ if (isActionAccessible($guid, $connection2, '/modules/Query Builder/queries_run.
     $query = $_POST['query'] ?? '';
 
     if (isset($_GET['return'])) {
-        $illegals = isset($_GET['illegals'])? urldecode($_GET['illegals']) : '';
+        $illegals = is_string($_GET['illegals'] ?? null) ? urldecode($_GET['illegals']) : '';
         $page->return->addReturns([
-            'error3' => __m('Your query contains the following illegal term(s), and so cannot be run:').' <b>'.substr($illegals, 0, -2).'</b>.'
+            'error3' => __m('Your query contains the following illegal term(s), and so cannot be run:').' <b>'.htmlPrep(substr($illegals, 0, -2)).'</b>.'
         ]);
     }
 
